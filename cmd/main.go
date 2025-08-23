@@ -3,7 +3,7 @@ package main
 import (
 	"golang.org/x/tools/go/analysis/multichecker"
 
-	"github.com/mirrexone/sqlvet/internal/analyzer"
+	"github.com/MirrexOne/sqlvet/internal/analyzer"
 )
 
 // This is a plugin entry point for golangci-lint.

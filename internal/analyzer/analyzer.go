@@ -6,11 +6,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/MirrexOne/sqlvet/internal/config"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
-
-	"github.com/MirrexOne/sqlvet"
 )
 
 const (
