@@ -1,8 +1,9 @@
 package main
 
 import (
-	internal "github.com/MirrexOne/sqlvet/internal/analyzer"
 	"golang.org/x/tools/go/analysis/singlechecker"
+
+	internal "github.com/MirrexOne/sqlvet/internal/analyzer"
 )
 
 // main предоставляет CLI интерфейс для SQLVet линтера
