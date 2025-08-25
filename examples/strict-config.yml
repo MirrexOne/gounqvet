@@ -1,0 +1,32 @@
+# Strict sqlvet configuration - catches almost everything
+# Use this for new projects or when you want to enforce strict SELECT * policies
+
+linters:
+  enable:
+    - sqlvet
+
+linters-settings:
+  sqlvet:
+    # Enable all checks
+    check-sql-builders: true
+    
+    # Minimal ignored functions - only essential ones
+    ignored-functions:
+      - "fmt.Printf"    # Keep for debugging output
+      
+    # Very restrictive allowed patterns - only critical system queries
+    allowed-patterns:
+      - "SELECT \\* FROM information_schema\\.tables"
+      - "SELECT \\* FROM information_schema\\.columns"
+      - "COUNT\\(\\s*\\*\\s*\\)"  # COUNT(*) is always acceptable
+      
+    # Standard ignored files
+    ignored-file-patterns:
+      - "*_test.go"
+      - "*.pb.go"
+      - "*_generated.go"
+      
+    # Minimal ignored directories
+    ignored-directories:
+      - "vendor"
+      - ".git"

@@ -1,0 +1,52 @@
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - structcheck
+    - varcheck
+    - ineffassign
+    - deadcode
+    - typecheck
+    - goimports
+    - gofmt
+    - gocyclo
+    - golint
+    - unconvert
+    - dupl
+    - goconst
+    - gofumpt
+
+issues:
+  exclude-use-default: false
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+    - path: testdata/
+      linters:
+        - all
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  goimports:
+    local-prefixes: github.com/MirrexOne/sqlvet
+  gocyclo:
+    min-complexity: 15
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 2

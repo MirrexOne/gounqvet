@@ -1,9 +1,9 @@
-package internal
+package analyzer
 
 import (
 	"testing"
 
-	cfg "github.com/MirrexOne/sqlvet/internal/config"
+	"github.com/MirrexOne/sqlvet/pkg/config"
 )
 
 func TestNormalizeSQLQuery(t *testing.T) {
@@ -70,7 +70,9 @@ func TestNormalizeSQLQuery(t *testing.T) {
 }
 
 func TestIsSelectStarQuery(t *testing.T) {
-	config := cfg.NewConfig()
+	cfg := &config.SQLVetSettings{
+		AllowedPatterns: []string{},
+	}
 
 	tests := []struct {
 		name     string
@@ -105,7 +107,7 @@ func TestIsSelectStarQuery(t *testing.T) {
 		{
 			name:     "SELECT * without SQL keywords",
 			input:    "SELECT *",
-			expected: false,
+			expected: true,
 		},
 		{
 			name:     "INSERT statement",
@@ -126,7 +128,7 @@ func TestIsSelectStarQuery(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := isSelectStarQuery(tt.input, config)
+			result := isSelectStarQuery(tt.input, cfg)
 			if result != tt.expected {
 				t.Errorf("isSelectStarQuery(%q) = %v, want %v", tt.input, result, tt.expected)
 			}
@@ -135,12 +137,14 @@ func TestIsSelectStarQuery(t *testing.T) {
 }
 
 func TestConfigLoading(t *testing.T) {
-	config := cfg.NewConfig()
+	// Use default settings to test that they contain expected values
+	defaults := config.DefaultSettings()
+	cfg := &defaults
 
 	expectedDirs := []string{"vendor", ".git", "node_modules", "testdata"}
 	for _, expectedDir := range expectedDirs {
 		found := false
-		for _, dir := range config.IgnoredDirectories {
+		for _, dir := range cfg.IgnoredDirectories {
 			if dir == expectedDir {
 				found = true
 				break
@@ -151,10 +155,10 @@ func TestConfigLoading(t *testing.T) {
 		}
 	}
 
-	expectedPatterns := []string{"*_test.go", "*.pb.go", "*_gen.go"}
+	expectedPatterns := []string{"*_test.go", "*.pb.go", "*_gen.go", "*.gen.go", "*_generated.go"}
 	for _, expectedPattern := range expectedPatterns {
 		found := false
-		for _, pattern := range config.IgnoredFilePatterns {
+		for _, pattern := range cfg.IgnoredFilePatterns {
 			if pattern == expectedPattern {
 				found = true
 				break
@@ -167,21 +171,66 @@ func TestConfigLoading(t *testing.T) {
 }
 
 func TestAllowedPatterns(t *testing.T) {
-	config := cfg.NewConfig()
+	// Use default settings which include the allowed patterns
+	defaults := config.DefaultSettings()
+	cfg := &defaults
 
 	countQuery := "SELECT COUNT(*) FROM users"
-	if isSelectStarQuery(countQuery, config) {
+	if isSelectStarQuery(countQuery, cfg) {
 		t.Error("COUNT(*) should be allowed by default allowed patterns")
 	}
 
 	schemaQuery := "SELECT * FROM information_schema.tables"
-	if isSelectStarQuery(schemaQuery, config) {
+	if isSelectStarQuery(schemaQuery, cfg) {
 		t.Error("information_schema queries should be allowed by default")
 	}
 
 	normalQuery := "SELECT * FROM users WHERE active = 1"
-	if !isSelectStarQuery(normalQuery, config) {
+	if !isSelectStarQuery(normalQuery, cfg) {
 		t.Error("Normal SELECT * queries should not be allowed")
+	}
+}
+
+func TestAllowedPatternsWithRegex(t *testing.T) {
+	// Use default settings for consistent testing
+	defaults := config.DefaultSettings()
+	cfg := &defaults
+
+	tests := []struct {
+		name    string
+		query   string
+		allowed bool
+	}{
+		{
+			name:    "COUNT(*) with spaces",
+			query:   "SELECT COUNT( * ) FROM users",
+			allowed: true,
+		},
+		{
+			name:    "Case-insensitive COUNT",
+			query:   "select count(*) from USERS",
+			allowed: true,
+		},
+		{
+			name:    "information_schema query",
+			query:   "SELECT * FROM INFORMATION_SCHEMA.TABLES",
+			allowed: true,
+		},
+		{
+			name:    "Normal SELECT * query",
+			query:   "SELECT * FROM users",
+			allowed: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// isSelectStarQuery возвращает true, если запрос *не* разрешен
+			result := isSelectStarQuery(tt.query, cfg)
+			if result == tt.allowed {
+				t.Errorf("isSelectStarQuery(%q) = %v, want %v (allowed)", tt.query, result, !tt.allowed)
+			}
+		})
 	}
 }
 

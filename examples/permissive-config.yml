@@ -1,0 +1,84 @@
+# Permissive sqlvet configuration - for legacy projects or gradual adoption
+# Use this when migrating large codebases or when SELECT * is acceptable in some contexts
+
+linters:
+  enable:
+    - sqlvet
+
+linters-settings:
+  sqlvet:
+    # Enable SQL builder checking
+    check-sql-builders: true
+    
+    # Extended ignored functions for legacy code
+    ignored-functions:
+      - "fmt.Printf"
+      - "fmt.Sprintf" 
+      - "log.Printf"
+      - "log.Sprintf"
+      - "debug.Query"
+      - "test.QueryDebug"
+      - "dev.ExecuteQuery"
+      
+    # Generous allowed patterns for various use cases
+    allowed-patterns:
+      # System queries
+      - "SELECT \\* FROM information_schema\\..*"
+      - "SELECT \\* FROM pg_catalog\\..*"
+      - "SELECT \\* FROM sys\\..*"
+      - "SELECT \\* FROM mysql\\..*"
+      
+      # Temporary and debug tables
+      - "SELECT \\* FROM temp_.*"
+      - "SELECT \\* FROM tmp_.*"
+      - "SELECT \\* FROM debug_.*"
+      - "SELECT \\* FROM test_.*"
+      
+      # Backup and archive tables
+      - "SELECT \\* FROM .*_backup"
+      - "SELECT \\* FROM .*_archive"
+      - "SELECT \\* FROM archive_.*"
+      
+      # Aggregate functions
+      - "COUNT\\(\\s*\\*\\s*\\)"
+      - "MAX\\(\\s*\\*\\s*\\)"
+      - "MIN\\(\\s*\\*\\s*\\)"
+      - "SUM\\(\\s*\\*\\s*\\)"
+      - "AVG\\(\\s*\\*\\s*\\)"
+      
+      # Common admin/maintenance patterns
+      - "SELECT \\* FROM.*LIMIT 1"
+      - "SELECT \\* FROM.*WHERE.*debug"
+      - "SELECT \\* FROM.*-- temp query"
+      
+    # Extended ignored files
+    ignored-file-patterns:
+      - "*_test.go"
+      - "*.pb.go" 
+      - "*_generated.go"
+      - "*.gen.go"
+      - "*_mock.go"
+      - "mock_*.go"
+      - "*_debug.go"
+      - "debug_*.go"
+      
+    # Extended ignored directories
+    ignored-directories:
+      - "vendor"
+      - "testdata"
+      - "migrations" 
+      - "generated"
+      - "mocks"
+      - "debug"
+      - "dev"
+      - "scripts"
+      - ".git"
+      
+    # Packages to ignore completely
+    ignored-packages:
+      - "testing"
+      - "test"
+      - "mock"
+      - "mocks"  
+      - "debug"
+      - "dev"

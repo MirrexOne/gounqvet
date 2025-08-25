@@ -1,0 +1,52 @@
+# Example .golangci.yml configuration for sqlvet
+
+linters:
+  enable:
+    - sqlvet
+
+linters-settings:
+  sqlvet:
+    # Basic configuration
+    check-sql-builders: true
+    
+    # Standard ignored functions (these are defaults, shown for reference)
+    ignored-functions:
+      - "fmt.Printf"
+      - "fmt.Sprintf"
+      - "log.Printf"
+      
+    # Common patterns that should be allowed
+    allowed-patterns:
+      # System/catalog queries
+      - "SELECT \\* FROM information_schema\\..*"
+      - "SELECT \\* FROM pg_catalog\\..*" 
+      - "SELECT \\* FROM sys\\..*"
+      
+      # Temporary tables (adjust pattern as needed)
+      - "SELECT \\* FROM temp_.*"
+      - "SELECT \\* FROM tmp_.*"
+      
+      # Common aggregate functions that use *
+      - "COUNT\\(\\s*\\*\\s*\\)"
+      - "MAX\\(\\s*\\*\\s*\\)"
+      - "MIN\\(\\s*\\*\\s*\\)"
+    
+    # Files to ignore
+    ignored-file-patterns:
+      - "*_test.go"       # Test files
+      - "*.pb.go"         # Protocol buffer generated files
+      - "*_generated.go"  # Other generated files
+      - "*.gen.go"        # Alternative generated file pattern
+      
+    # Directories to ignore  
+    ignored-directories:
+      - "vendor"          # Dependencies
+      - "testdata"        # Test data
+      - "migrations"      # Database migration files
+      - "generated"       # Generated code
+      - ".git"           # Git directory
+      
+    # Packages to ignore
+    ignored-packages:
+      - "testing"         # Test packages
+      - "test"           # Alternative test packages
