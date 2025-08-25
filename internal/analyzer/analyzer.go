@@ -28,9 +28,9 @@ func NewAnalyzer() *analysis.Analyzer {
 // NewAnalyzerWithSettings creates analyzer with provided settings for golangci-lint integration
 func NewAnalyzerWithSettings(s config.SQLVetSettings) *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name:     "sqlvet",
-		Doc:      "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
-		Run:      func(pass *analysis.Pass) (any, error) {
+		Name: "sqlvet",
+		Doc:  "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
+		Run: func(pass *analysis.Pass) (any, error) {
 			return RunWithConfig(pass, &s)
 		},
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
@@ -50,9 +50,9 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.SQLVetSettings) (any, error)
 
 	// Define AST node types we're interested in
 	nodeFilter := []ast.Node{
-		(*ast.BasicLit)(nil), // String literals
-		(*ast.CallExpr)(nil), // Function/method calls
-		(*ast.File)(nil),     // Files (for SQL builder analysis)
+		(*ast.CallExpr)(nil),   // Function/method calls
+		(*ast.File)(nil),       // Files (for SQL builder analysis)
+		(*ast.AssignStmt)(nil), // Assignment statements for standalone literals
 	}
 
 	// Walk through all AST nodes and analyze them
@@ -73,9 +73,9 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.SQLVetSettings) (any, error)
 			if cfg.CheckSQLBuilders {
 				analyzeSQLBuilders(pass, node, cfg)
 			}
-		case *ast.BasicLit:
-			// Check string literals for SELECT * usage
-			checkBasicLit(pass, node, cfg)
+		case *ast.AssignStmt:
+			// Check assignment statements for standalone SQL literals
+			checkAssignStmt(pass, node, cfg)
 		case *ast.CallExpr:
 			// Analyze function calls for SQL with SELECT * usage
 			checkCallExpr(pass, node, cfg)
@@ -91,9 +91,9 @@ func run(pass *analysis.Pass) (any, error) {
 
 	// Define AST node types we're interested in
 	nodeFilter := []ast.Node{
-		(*ast.BasicLit)(nil), // String literals
-		(*ast.CallExpr)(nil), // Function/method calls
-		(*ast.File)(nil),     // Files (for SQL builder analysis)
+		(*ast.CallExpr)(nil),   // Function/method calls
+		(*ast.File)(nil),       // Files (for SQL builder analysis)
+		(*ast.AssignStmt)(nil), // Assignment statements for standalone literals
 	}
 
 	// Always use default settings since passing settings through ResultOf doesn't work reliably
@@ -118,10 +118,9 @@ func run(pass *analysis.Pass) (any, error) {
 			if cfg.CheckSQLBuilders {
 				analyzeSQLBuilders(pass, node, cfg)
 			}
-		case *ast.BasicLit:
-			// Check string literals for SELECT * usage
-			// Only check if not within a function call (to avoid duplicates)
-			checkBasicLit(pass, node, cfg)
+		case *ast.AssignStmt:
+			// Check assignment statements for standalone SQL literals
+			checkAssignStmt(pass, node, cfg)
 		case *ast.CallExpr:
 			// Analyze function calls for SQL with SELECT * usage
 			checkCallExpr(pass, node, cfg)
@@ -131,7 +130,7 @@ func run(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
-// hasNolintComment checks for //nolint:sqlvet comment before the node
+// hasNolintComment checks for //nolint:sqlvet comment on the same line as the node
 // This provides standard nolint directive support for golangci-lint
 func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 	pos := pass.Fset.Position(node.Pos())
@@ -143,13 +142,10 @@ func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 
 		// Check all comments in the file
 		for _, commentGroup := range file.Comments {
-			// Comment should be before the node and on the previous or same line
-			commentEnd := pass.Fset.Position(commentGroup.End())
-			if commentEnd.Filename == pos.Filename &&
-				commentGroup.End() < node.Pos() &&
-				pos.Line-commentEnd.Line <= 1 {
-
-				for _, comment := range commentGroup.List {
+			for _, comment := range commentGroup.List {
+				commentPos := pass.Fset.Position(comment.Pos())
+				// Check if comment is on the same line as the node
+				if commentPos.Filename == pos.Filename && commentPos.Line == pos.Line {
 					text := comment.Text
 					// Support various nolint comment variants
 					if strings.Contains(text, "nolint:sqlvet") ||
@@ -164,50 +160,25 @@ func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 	return false
 }
 
-// checkBasicLit checks string literals for SELECT * usage
-// Based on the normalizeSQLQuery logic
-func checkBasicLit(pass *analysis.Pass, lit *ast.BasicLit, cfg *config.SQLVetSettings) {
-	if lit.Kind != token.STRING {
-		return
-	}
-
-	// Check if this literal is part of a function call to avoid duplicates
-	// We'll check it in checkCallExpr instead
-	if isLiteralInFunctionCall(pass, lit) {
-		return
-	}
-
-	// Normalize SQL query using advanced logic
-	content := normalizeSQLQuery(lit.Value)
-	if isSelectStarQuery(content, cfg) {
-		pass.Report(analysis.Diagnostic{
-			Pos:     lit.Pos(),
-			Message: getWarningMessage(),
-		})
-	}
-}
-
-// isLiteralInFunctionCall checks if a BasicLit is an argument to a function call
-func isLiteralInFunctionCall(pass *analysis.Pass, lit *ast.BasicLit) bool {
-	// We need to check the parent nodes
-	for _, file := range pass.Files {
-		var inCall bool
-		ast.Inspect(file, func(n ast.Node) bool {
-			if call, ok := n.(*ast.CallExpr); ok {
-				for _, arg := range call.Args {
-					if arg == lit {
-						inCall = true
-						return false
-					}
-				}
+// checkAssignStmt checks assignment statements for standalone SQL literals
+func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.SQLVetSettings) {
+	// Check right-hand side expressions for string literals with SELECT *
+	for _, expr := range stmt.Rhs {
+		// Only check direct string literals, not function calls
+		if lit, ok := expr.(*ast.BasicLit); ok && lit.Kind == token.STRING {
+			// Check for nolint comments on the same line as the literal
+			if hasNolintComment(pass, lit) {
+				continue
 			}
-			return true
-		})
-		if inCall {
-			return true
+			content := normalizeSQLQuery(lit.Value)
+			if isSelectStarQuery(content, cfg) {
+				pass.Report(analysis.Diagnostic{
+					Pos:     lit.Pos(),
+					Message: getWarningMessage(),
+				})
+			}
 		}
 	}
-	return false
 }
 
 // checkCallExpr analyzes function calls for SQL with SELECT * usage
@@ -274,7 +245,6 @@ func isIgnoredFunctionOrPackage(call *ast.CallExpr, cfg *config.SQLVetSettings) 
 	}
 	return false
 }
-
 
 // shouldSkipFile determines if file should be skipped based on configuration
 func shouldSkipFile(pass *analysis.Pass, node ast.Node, cfg *config.SQLVetSettings) bool {
@@ -408,7 +378,7 @@ func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 				return true
 			}
 		}
-		
+
 		// Also check if it's just "SELECT *" without other keywords (still problematic)
 		trimmed := strings.TrimSpace(upperQuery)
 		if trimmed == "SELECT *" {

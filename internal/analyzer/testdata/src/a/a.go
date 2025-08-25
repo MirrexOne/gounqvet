@@ -46,10 +46,7 @@ func sqlInFunctionCalls() {
 
 // Multiline SQL queries
 func multilineSQL() {
-	query := ` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
-		SELECT * 
-		FROM users
-		WHERE active = true`
+	query := `SELECT * FROM users WHERE active = true` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 

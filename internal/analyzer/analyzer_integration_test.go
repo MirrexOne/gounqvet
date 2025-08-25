@@ -15,10 +15,10 @@ func TestAnalyzer(t *testing.T) {
 
 func TestAnalyzerWithSettings(t *testing.T) {
 	testdata := analysistest.TestData()
-	
+
 	// Test with default settings
 	analysistest.Run(t, testdata, analyzer.NewAnalyzer(), "clean")
-	
+
 	// Test with SQL builders detection
 	analysistest.Run(t, testdata, analyzer.NewAnalyzer(), "integration")
 }

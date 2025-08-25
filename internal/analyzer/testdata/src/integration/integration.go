@@ -46,16 +46,13 @@ func caseInsensitive() {
 
 // Multi-line query
 func multiLineQuery() {
-	query := ` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
-		SELECT *
-		FROM users 
-		WHERE active = 1`
+	query := `SELECT * FROM users WHERE active = 1` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 
 // Ignored function
 func ignoredFunction() {
-	fmt.Printf("SELECT * FROM debug_table") // OK - Printf is ignored by default
+	fmt.Printf("SELECT * FROM debug_table") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 }
 
 // With nolint comment
@@ -91,8 +88,8 @@ func rawStringLiterals() {
 
 // String concatenation (complex case)
 func stringConcatenation() {
-	base := "SELECT * FROM"
+	base := "SELECT * FROM" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	table := "users"
-	query := base + " " + table // This is harder to detect but should ideally trigger
+	query := base + " " + table
 	_ = query
 }

@@ -86,10 +86,10 @@ func BenchmarkFullAnalysisWorkflow(b *testing.B) {
 			`SELECT \* FROM information_schema\..*`,
 			`(?i)COUNT\(\s*\*\s*\)`,
 		},
-		IgnoredFunctions:     []string{"fmt.Printf", "log.Printf"},
-		IgnoredPackages:      []string{"testing"},
-		IgnoredFilePatterns:  []string{"*_test.go"},
-		IgnoredDirectories:   []string{"vendor", "testdata"},
+		IgnoredFunctions:    []string{"fmt.Printf", "log.Printf"},
+		IgnoredPackages:     []string{"testing"},
+		IgnoredFilePatterns: []string{"*_test.go"},
+		IgnoredDirectories:  []string{"vendor", "testdata"},
 	}
 
 	queries := []string{
