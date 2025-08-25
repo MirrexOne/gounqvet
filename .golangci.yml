@@ -36,8 +36,6 @@ issues:
         - all
 
 linters-settings:
-  govet:
-    check-shadowing: true
   goimports:
     local-prefixes: github.com/MirrexOne/sqlvet
   gocyclo:
