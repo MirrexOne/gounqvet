@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-gounqvet
+/gounqvet
 
 # Test binary, built with `go test -c`
 *.test
