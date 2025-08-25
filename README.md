@@ -8,13 +8,13 @@ SQLVet is a Go static analysis tool (linter) that detects `SELECT *` usage in SQ
 
 ## Features
 
-- 🔍 **Detects `SELECT *` in string literals** - Finds problematic queries in your Go code
-- 🏗️ **SQL Builder support** - Works with popular SQL builders like Squirrel, GORM, etc.
-- ⚙️ **Highly configurable** - Extensive configuration options for different use cases
-- 🚫 **Supports `//nolint:sqlvet`** - Standard Go linting suppression
-- 📦 **golangci-lint integration** - Works seamlessly with golangci-lint
-- 🎯 **Zero false positives** - Smart pattern recognition for acceptable `SELECT *` usage
-- 🚀 **Fast and lightweight** - Built on golang.org/x/tools/go/analysis
+- **Detects `SELECT *` in string literals** - Finds problematic queries in your Go code
+- **SQL Builder support** - Works with popular SQL builders like Squirrel, GORM, etc.
+- **Highly configurable** - Extensive configuration options for different use cases
+- **Supports `//nolint:sqlvet`** - Standard Go linting suppression
+- **golangci-lint integration** - Works seamlessly with golangci-lint
+- **Zero false positives** - Smart pattern recognition for acceptable `SELECT *` usage
+- **Fast and lightweight** - Built on golang.org/x/tools/go/analysis
 
 ## Why avoid `SELECT *`?
 
@@ -30,15 +30,15 @@ SQLVet provides context-specific messages that explain WHY you should avoid `SEL
 ```go
 // Basic queries
 query := "SELECT * FROM users"
-// ❌ avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability
+// avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability
 
 // SQL Builders
 query := squirrel.Select("*").From("users")
-// ❌ avoid SELECT * in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues
+// avoid SELECT * in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues
 
 // Empty Select()
 query := squirrel.Select()
-// ❌ SQL builder Select() without columns defaults to SELECT * - add specific columns with .Columns() method
+// SQL builder Select() without columns defaults to SELECT * - add specific columns with .Columns() method
 ```
 
 ## Quick Start
@@ -73,7 +73,7 @@ linters-settings:
 
 ## Examples
 
-### ❌ Problematic code (will trigger warnings)
+### Problematic code (will trigger warnings)
 
 ```go
 // String literals with SELECT *
@@ -85,7 +85,7 @@ query := squirrel.Select("*").From("products")
 query := builder.Select().Columns("*").From("inventory")
 ```
 
-### ✅ Good code (recommended)
+### Good code (recommended)
 
 ```go
 // Explicit column selection
@@ -97,7 +97,7 @@ query := squirrel.Select("id", "name", "price").From("products")
 query := builder.Select().Columns("id", "quantity", "location").From("inventory")
 ```
 
-### ✅ Acceptable SELECT * usage (won't trigger warnings)
+### Acceptable SELECT * usage (won't trigger warnings)
 
 ```go
 // System/meta queries
@@ -285,10 +285,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/sqlvet/issues)
-- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/MirrexOne/sqlvet/discussions)
-- 📚 **Documentation**: [GoDoc](https://godoc.org/github.com/MirrexOne/sqlvet)
+- **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/sqlvet/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/MirrexOne/sqlvet/discussions)
+- **Documentation**: [GoDoc](https://godoc.org/github.com/MirrexOne/sqlvet)
 
 ---
 
-**SQLVet** - Making your SQL queries explicit, one `SELECT` at a time! ⚡
+**SQLVet** - Making your SQL queries explicit, one `SELECT` at a time!
