@@ -26,11 +26,63 @@ func NewAnalyzer() *analysis.Analyzer {
 }
 
 // NewAnalyzerWithSettings creates analyzer with provided settings for golangci-lint integration
-// Currently not implemented - uses default settings
 func NewAnalyzerWithSettings(s config.SQLVetSettings) *analysis.Analyzer {
-	// TODO: Implement custom settings support if needed for golangci-lint integration
-	// For now, return the same analyzer as NewAnalyzer()
-	return NewAnalyzer()
+	return &analysis.Analyzer{
+		Name:     "sqlvet",
+		Doc:      "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
+		Run:      func(pass *analysis.Pass) (any, error) {
+			return RunWithConfig(pass, &s)
+		},
+		Requires: []*analysis.Analyzer{inspect.Analyzer},
+	}
+}
+
+// RunWithConfig performs analysis with provided configuration
+// This is the main entry point for configured analysis
+func RunWithConfig(pass *analysis.Pass, cfg *config.SQLVetSettings) (any, error) {
+	insp := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
+
+	// Use provided configuration or default if nil
+	if cfg == nil {
+		defaultSettings := config.DefaultSettings()
+		cfg = &defaultSettings
+	}
+
+	// Define AST node types we're interested in
+	nodeFilter := []ast.Node{
+		(*ast.BasicLit)(nil), // String literals
+		(*ast.CallExpr)(nil), // Function/method calls
+		(*ast.File)(nil),     // Files (for SQL builder analysis)
+	}
+
+	// Walk through all AST nodes and analyze them
+	insp.Preorder(nodeFilter, func(n ast.Node) {
+		// Check if we should skip this file
+		if shouldSkipFile(pass, n, cfg) {
+			return
+		}
+
+		// Check for nolint comments before analyzing the node
+		if hasNolintComment(pass, n) {
+			return
+		}
+
+		switch node := n.(type) {
+		case *ast.File:
+			// Analyze SQL builders only if enabled in configuration
+			if cfg.CheckSQLBuilders {
+				analyzeSQLBuilders(pass, node, cfg)
+			}
+		case *ast.BasicLit:
+			// Check string literals for SELECT * usage
+			checkBasicLit(pass, node, cfg)
+		case *ast.CallExpr:
+			// Analyze function calls for SQL with SELECT * usage
+			checkCallExpr(pass, node, cfg)
+		}
+	})
+
+	return nil, nil
 }
 
 // run performs the main analysis of Go code files for SELECT * usage
