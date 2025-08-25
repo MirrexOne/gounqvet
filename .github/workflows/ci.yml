@@ -109,14 +109,35 @@ jobs:
       with:
         go-version: '1.24.6'
 
-    - name: Test with analysis framework
+    - name: Set up Go environment
+      run: |
+        echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+        echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+    - name: Clean and prepare
       run: |
         # Очищаем кэш и обновляем зависимости
         go clean -modcache -cache -testcache
         go mod download
         go mod verify
-        # Компилируем все пакеты для генерации кэша типов
-        go build -v ./...
-        # Запускаем тесты и анализ
+
+    - name: Build all packages
+      run: |
+        # Компилируем основные пакеты
+        go build -v ./internal/...
+        go build -v ./cmd/...
+
+    - name: Run analyzer tests
+      run: |
+        # Запускаем тесты анализатора
         go test -v ./internal/analyzer/...
-        go run ./cmd/gounqvet ./...
+
+    - name: Build and install gounqvet
+      run: |
+        # Устанавливаем инструмент
+        go install ./cmd/gounqvet
+
+    - name: Run self-analysis
+      run: |
+        # Анализируем проект с помощью установленного инструмента
+        $GOPATH/bin/gounqvet ./...
