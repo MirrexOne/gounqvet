@@ -18,7 +18,7 @@ func ExampleBadCode() {
 	_ = db // db would be used in real code
 
 	// BAD: SELECT * in function call
-	// sqlvet will warn about this  
+	// sqlvet will warn about this
 	// In real code: rows, err := db.Query("SELECT * FROM products")
 	_ = "SELECT * FROM products"
 

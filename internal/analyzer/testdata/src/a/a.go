@@ -1,4 +1,4 @@
-// Package a contains test cases for sqlvet analyzer  
+// Package a contains test cases for sqlvet analyzer
 package a
 
 import (
@@ -39,7 +39,7 @@ func sqlInFunctionCalls() {
 	rows, _ := db.Query("SELECT * FROM orders") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = rows
 
-	// This should also trigger warning  
+	// This should also trigger warning
 	stmt, _ := db.Prepare("SELECT * FROM customers") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = stmt
 }
@@ -53,10 +53,10 @@ func multilineSQL() {
 // Functions that will trigger warnings with default config
 func defaultBehavior() {
 	// These will trigger warnings with minimal default config
-	fmt.Printf("SELECT * FROM debug_table")    // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
+	fmt.Printf("SELECT * FROM debug_table")      // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	fmt.Sprintf("SELECT * FROM temp_%s", "data") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
-	log.Printf("Executing: SELECT * FROM logs") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
-	
+	log.Printf("Executing: SELECT * FROM logs")  // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
+
 	// File operations
 	_, _ = os.Open("file.sql")
 }
