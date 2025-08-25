@@ -1,3 +1,4 @@
+// Package analyzer provides the SQL static analysis implementation for detecting SELECT * usage.
 package analyzer
 
 import (
@@ -9,10 +10,22 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/MirrexOne/sqlvet/pkg/config"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
+
+	"github.com/MirrexOne/sqlvet/pkg/config"
+)
+
+const (
+	// selectKeyword is the SQL SELECT method name in builders
+	selectKeyword = "Select"
+	// columnKeyword is the SQL Column method name in builders
+	columnKeyword = "Column"
+	// columnsKeyword is the SQL Columns method name in builders
+	columnsKeyword = "Columns"
+	// defaultWarningMessage is the standard warning for SELECT * usage
+	defaultWarningMessage = "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
 )
 
 // NewAnalyzer creates the SQLVet analyzer with enhanced logic for production use
@@ -190,7 +203,7 @@ func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.SQLVetSe
 	}
 
 	// Check SQL builders for SELECT * in arguments
-	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call, cfg) {
+	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call) {
 		pass.Report(analysis.Diagnostic{
 			Pos:     call.Pos(),
 			Message: getDetailedWarningMessage("sql_builder"),
@@ -292,9 +305,8 @@ func isFileInDirectory(path, dir string) bool {
 	return false
 }
 
-// normalizeSQLQuery normalizes SQL query for analysis
-// Advanced implementation with escape sequence handling
-// NormalizeSQLQuery is exported for testing
+// NormalizeSQLQuery normalizes SQL query for analysis with advanced escape sequence handling.
+// Exported for testing purposes.
 func NormalizeSQLQuery(query string) string {
 	return normalizeSQLQuery(query)
 }
@@ -353,9 +365,8 @@ func trimQuotes(query string) string {
 	return query[1 : len(query)-1]
 }
 
-// isSelectStarQuery determines if query contains SELECT *
-// Enhanced version with allowed patterns support
-// IsSelectStarQuery is exported for testing
+// IsSelectStarQuery determines if query contains SELECT * with enhanced allowed patterns support.
+// Exported for testing purposes.
 func IsSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 	return isSelectStarQuery(query, cfg)
 }
@@ -390,7 +401,7 @@ func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 
 // getWarningMessage returns informative warning message
 func getWarningMessage() string {
-	return "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
+	return defaultWarningMessage
 }
 
 // getDetailedWarningMessage returns context-specific warning message
@@ -403,19 +414,19 @@ func getDetailedWarningMessage(context string) string {
 	case "empty_select":
 		return "SQL builder Select() without columns defaults to SELECT * - add specific columns with .Columns() method"
 	default:
-		return "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
+		return defaultWarningMessage
 	}
 }
 
 // isSQLBuilderSelectStar checks SQL builder method calls for SELECT * usage
-func isSQLBuilderSelectStar(call *ast.CallExpr, cfg *config.SQLVetSettings) bool {
+func isSQLBuilderSelectStar(call *ast.CallExpr) bool {
 	fun, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return false
 	}
 
 	// Check that this is a Select method call
-	if fun.Sel == nil || fun.Sel.Name != "Select" {
+	if fun.Sel == nil || fun.Sel.Name != selectKeyword {
 		return false
 	}
 
@@ -472,7 +483,7 @@ func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetS
 		case *ast.CallExpr:
 			if sel, ok := node.Fun.(*ast.SelectorExpr); ok {
 				// Check calls to Columns() or Column() methods
-				if sel.Sel != nil && (sel.Sel.Name == "Columns" || sel.Sel.Name == "Column") {
+				if sel.Sel != nil && (sel.Sel.Name == columnsKeyword || sel.Sel.Name == columnKeyword) {
 					// Check for "*" in arguments
 					if hasStarInColumns(node) {
 						pass.Report(analysis.Diagnostic{
@@ -522,7 +533,7 @@ func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetS
 // isEmptySelectCall checks if call is an empty Select()
 func isEmptySelectCall(call *ast.CallExpr) bool {
 	if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
-		if sel.Sel != nil && sel.Sel.Name == "Select" && len(call.Args) == 0 {
+		if sel.Sel != nil && sel.Sel.Name == selectKeyword && len(call.Args) == 0 {
 			return true
 		}
 	}
@@ -532,7 +543,7 @@ func isEmptySelectCall(call *ast.CallExpr) bool {
 // isSelectWithColumns checks call chains like Select().Columns()
 func isSelectWithColumns(call *ast.CallExpr) bool {
 	if sel, ok := call.Fun.(*ast.SelectorExpr); ok {
-		if sel.Sel != nil && (sel.Sel.Name == "Columns" || sel.Sel.Name == "Column") {
+		if sel.Sel != nil && (sel.Sel.Name == columnsKeyword || sel.Sel.Name == columnKeyword) {
 			// Check that previous call in chain is Select()
 			if innerCall, ok := sel.X.(*ast.CallExpr); ok {
 				return isEmptySelectCall(innerCall)

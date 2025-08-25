@@ -225,7 +225,7 @@ func TestAllowedPatternsWithRegex(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// isSelectStarQuery возвращает true, если запрос *не* разрешен
+			// isSelectStarQuery returns true if the query is *not* allowed
 			result := isSelectStarQuery(tt.query, cfg)
 			if result == tt.allowed {
 				t.Errorf("isSelectStarQuery(%q) = %v, want %v (allowed)", tt.query, result, !tt.allowed)

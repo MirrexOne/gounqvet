@@ -1,5 +1,7 @@
+// Package config provides configuration structures for SQLVet analyzer.
 package config
 
+// SQLVetSettings holds the configuration for the SQLVet analyzer.
 type SQLVetSettings struct {
 	// CheckSQLBuilders enables checking SQL builders like Squirrel for SELECT * usage
 	CheckSQLBuilders bool `mapstructure:"check-sql-builders" json:"check-sql-builders" yaml:"check-sql-builders"`

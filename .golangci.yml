@@ -11,19 +11,16 @@ linters:
     - staticcheck
     - unused
     - gosimple
-    - structcheck
-    - varcheck
     - ineffassign
-    - deadcode
     - typecheck
     - goimports
     - gofmt
     - gocyclo
-    - golint
     - unconvert
     - dupl
     - goconst
     - gofumpt
+    - revive  # replacement for golint
 
 issues:
   exclude-use-default: false
