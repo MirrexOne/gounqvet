@@ -1,6 +1,8 @@
 module github.com/MirrexOne/gounqvet
 
-go 1.21
+go 1.23.0
+
+toolchain go1.24.4
 
 require golang.org/x/tools v0.36.0
 
