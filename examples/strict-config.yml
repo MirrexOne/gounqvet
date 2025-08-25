@@ -1,12 +1,12 @@
-# Strict sqlvet configuration - catches almost everything
+# Strict gounqvet configuration - catches almost everything
 # Use this for new projects or when you want to enforce strict SELECT * policies
 
 linters:
   enable:
-    - sqlvet
+    - gounqvet
 
 linters-settings:
-  sqlvet:
+  gounqvet:
     # Enable all checks
     check-sql-builders: true
     

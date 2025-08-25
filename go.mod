@@ -1,4 +1,4 @@
-module github.com/MirrexOne/sqlvet
+module github.com/MirrexOne/gounqvet
 
 go 1.23.0
 

@@ -1,8 +1,8 @@
-// Package config provides configuration structures for SQLVet analyzer.
+// Package config provides configuration structures for Gounqvet analyzer.
 package config
 
-// SQLVetSettings holds the configuration for the SQLVet analyzer.
-type SQLVetSettings struct {
+// GounqvetSettings holds the configuration for the Gounqvet analyzer.
+type GounqvetSettings struct {
 	// CheckSQLBuilders enables checking SQL builders like Squirrel for SELECT * usage
 	CheckSQLBuilders bool `mapstructure:"check-sql-builders" json:"check-sql-builders" yaml:"check-sql-builders"`
 
@@ -27,9 +27,9 @@ type SQLVetSettings struct {
 	IgnoredDirectories []string `mapstructure:"ignored-directories" json:"ignored-directories" yaml:"ignored-directories"`
 }
 
-// DefaultSettings returns the default configuration for sqlvet
-func DefaultSettings() SQLVetSettings {
-	return SQLVetSettings{
+// DefaultSettings returns the default configuration for gounqvet
+func DefaultSettings() GounqvetSettings {
+	return GounqvetSettings{
 		CheckSQLBuilders: true,
 		IgnoredFunctions: []string{},
 		IgnoredPackages:  []string{},

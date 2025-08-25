@@ -61,9 +61,9 @@ func TestMultilineSQL() {
 // TestNolintDirective tests nolint suppression
 func TestNolintDirective() {
 	// These should be ignored due to nolint comments
-	query1 := "SELECT * FROM users" //nolint:sqlvet
+	query1 := "SELECT * FROM users" //nolint:gounqvet
 
-	//nolint:sqlvet
+	//nolint:gounqvet
 	query2 := "SELECT * FROM products"
 
 	// General nolint should also work

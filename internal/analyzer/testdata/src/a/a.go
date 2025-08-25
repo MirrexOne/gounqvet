@@ -1,4 +1,4 @@
-// Package a contains test cases for sqlvet analyzer
+// Package a contains test cases for gounqvet analyzer
 package a
 
 import (
@@ -64,7 +64,7 @@ func defaultBehavior() {
 // Nolint directives
 func nolintDirectives() {
 	// This should be ignored due to nolint comment
-	query := "SELECT * FROM temp_table" //nolint:sqlvet
+	query := "SELECT * FROM temp_table" //nolint:gounqvet
 	_ = query
 
 	// This should be ignored due to general nolint

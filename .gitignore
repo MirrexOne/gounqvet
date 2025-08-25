@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-sqlvet
+gounqvet
 
 # Test binary, built with `go test -c`
 *.test

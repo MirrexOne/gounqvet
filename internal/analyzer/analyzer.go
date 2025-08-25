@@ -14,7 +14,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
 
-	"github.com/MirrexOne/sqlvet/pkg/config"
+	"github.com/MirrexOne/gounqvet/pkg/config"
 )
 
 const (
@@ -28,10 +28,10 @@ const (
 	defaultWarningMessage = "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
 )
 
-// NewAnalyzer creates the SQLVet analyzer with enhanced logic for production use
+// NewAnalyzer creates the Gounqvet analyzer with enhanced logic for production use
 func NewAnalyzer() *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name:     "sqlvet",
+		Name:     "gounqvet",
 		Doc:      "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
 		Run:      run,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
@@ -39,9 +39,9 @@ func NewAnalyzer() *analysis.Analyzer {
 }
 
 // NewAnalyzerWithSettings creates analyzer with provided settings for golangci-lint integration
-func NewAnalyzerWithSettings(s config.SQLVetSettings) *analysis.Analyzer {
+func NewAnalyzerWithSettings(s config.GounqvetSettings) *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name: "sqlvet",
+		Name: "gounqvet",
 		Doc:  "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
 		Run: func(pass *analysis.Pass) (any, error) {
 			return RunWithConfig(pass, &s)
@@ -52,7 +52,7 @@ func NewAnalyzerWithSettings(s config.SQLVetSettings) *analysis.Analyzer {
 
 // RunWithConfig performs analysis with provided configuration
 // This is the main entry point for configured analysis
-func RunWithConfig(pass *analysis.Pass, cfg *config.SQLVetSettings) (any, error) {
+func RunWithConfig(pass *analysis.Pass, cfg *config.GounqvetSettings) (any, error) {
 	insp := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	// Use provided configuration or default if nil
@@ -143,7 +143,7 @@ func run(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
-// hasNolintComment checks for //nolint:sqlvet comment on the same line as the node
+// hasNolintComment checks for //nolint:gounqvet comment on the same line as the node
 // This provides standard nolint directive support for golangci-lint
 func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 	pos := pass.Fset.Position(node.Pos())
@@ -161,7 +161,7 @@ func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 				if commentPos.Filename == pos.Filename && commentPos.Line == pos.Line {
 					text := comment.Text
 					// Support various nolint comment variants
-					if strings.Contains(text, "nolint:sqlvet") ||
+					if strings.Contains(text, "nolint:gounqvet") ||
 						strings.Contains(text, "nolint") {
 						return true
 					}
@@ -174,7 +174,7 @@ func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
 }
 
 // checkAssignStmt checks assignment statements for standalone SQL literals
-func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.SQLVetSettings) {
+func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.GounqvetSettings) {
 	// Check right-hand side expressions for string literals with SELECT *
 	for _, expr := range stmt.Rhs {
 		// Only check direct string literals, not function calls
@@ -196,7 +196,7 @@ func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.SQLV
 
 // checkCallExpr analyzes function calls for SQL with SELECT * usage
 // Includes checking arguments and SQL builders
-func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.SQLVetSettings) {
+func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.GounqvetSettings) {
 	// Skip ignored functions and packages
 	if isIgnoredFunctionOrPackage(call, cfg) {
 		return
@@ -227,7 +227,7 @@ func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.SQLVetSe
 
 // isIgnoredFunctionOrPackage checks if function call should be ignored
 // Supports both direct functions and package methods
-func isIgnoredFunctionOrPackage(call *ast.CallExpr, cfg *config.SQLVetSettings) bool {
+func isIgnoredFunctionOrPackage(call *ast.CallExpr, cfg *config.GounqvetSettings) bool {
 	switch fun := call.Fun.(type) {
 	case *ast.Ident:
 		// Direct function call (e.g., myFunc())
@@ -260,7 +260,7 @@ func isIgnoredFunctionOrPackage(call *ast.CallExpr, cfg *config.SQLVetSettings) 
 }
 
 // shouldSkipFile determines if file should be skipped based on configuration
-func shouldSkipFile(pass *analysis.Pass, node ast.Node, cfg *config.SQLVetSettings) bool {
+func shouldSkipFile(pass *analysis.Pass, node ast.Node, cfg *config.GounqvetSettings) bool {
 	pos := pass.Fset.Position(node.Pos())
 	filename := pos.Filename
 
@@ -367,11 +367,11 @@ func trimQuotes(query string) string {
 
 // IsSelectStarQuery determines if query contains SELECT * with enhanced allowed patterns support.
 // Exported for testing purposes.
-func IsSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
+func IsSelectStarQuery(query string, cfg *config.GounqvetSettings) bool {
 	return isSelectStarQuery(query, cfg)
 }
 
-func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
+func isSelectStarQuery(query string, cfg *config.GounqvetSettings) bool {
 	// Check allowed patterns first - if query matches an allowed pattern, ignore it
 	for _, pattern := range cfg.AllowedPatterns {
 		if matched, _ := regexp.MatchString(pattern, query); matched {
@@ -381,7 +381,7 @@ func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 
 	// Check for SELECT * in query (case-insensitive)
 	upperQuery := strings.ToUpper(query)
-	if strings.Contains(upperQuery, "SELECT *") { //nolint:sqlvet
+	if strings.Contains(upperQuery, "SELECT *") { //nolint:gounqvet
 		// Ensure this is actually an SQL query by checking for SQL keywords
 		sqlKeywords := []string{"FROM", "WHERE", "JOIN", "GROUP", "ORDER", "HAVING", "UNION", "LIMIT"}
 		for _, keyword := range sqlKeywords {

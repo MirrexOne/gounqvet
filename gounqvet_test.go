@@ -1,4 +1,4 @@
-package sqlvet_test
+package gounqvet_test
 
 import (
 	"strings"
@@ -6,17 +6,17 @@ import (
 
 	"golang.org/x/tools/go/analysis/analysistest"
 
-	"github.com/MirrexOne/sqlvet"
-	"github.com/MirrexOne/sqlvet/internal/analyzer"
+	"github.com/MirrexOne/gounqvet"
+	"github.com/MirrexOne/gounqvet/internal/analyzer"
 )
 
-func TestSQLVet(t *testing.T) {
+func TestGounqvet(t *testing.T) {
 	analysistest.Run(t, analysistest.TestData(), analyzer.NewAnalyzer(), "clean")
 }
 
-func TestSQLVetWithCustomSettings(t *testing.T) {
+func TestGounqvetWithCustomSettings(t *testing.T) {
 	// Test with custom configuration
-	settings := sqlvet.Settings{
+	settings := gounqvet.Settings{
 		CheckSQLBuilders:    true,
 		IgnoredFunctions:    []string{"fmt.Printf", "customDebugFunc"},
 		IgnoredPackages:     []string{"test"},
@@ -32,7 +32,7 @@ func TestSQLVetWithCustomSettings(t *testing.T) {
 
 func TestDefaultSettings(t *testing.T) {
 	// Test that default settings are reasonable
-	defaults := sqlvet.DefaultSettings()
+	defaults := gounqvet.DefaultSettings()
 
 	// Verify default values
 	if !defaults.CheckSQLBuilders {
@@ -65,11 +65,11 @@ func containsCountPattern(patterns []string) bool {
 }
 
 // Benchmark tests
-func BenchmarkSQLVet(b *testing.B) {
+func BenchmarkGounqvet(b *testing.B) {
 	testdata := analysistest.TestData()
 
 	for i := 0; i < b.N; i++ {
-		analysistest.Run(b, testdata, sqlvet.Analyzer, "testdata")
+		analysistest.Run(b, testdata, gounqvet.Analyzer, "testdata")
 	}
 }
 
@@ -102,7 +102,7 @@ func TestSelectStarDetection(t *testing.T) {
 		},
 		{
 			name:     "with nolint",
-			code:     `package test; func f() { _ = "SELECT * FROM users" //nolint:sqlvet }`,
+			code:     `package test; func f() { _ = "SELECT * FROM users" //nolint:gounqvet }`,
 			wantDiag: false,
 		},
 	}

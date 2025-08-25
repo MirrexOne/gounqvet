@@ -3,7 +3,7 @@ package analyzer
 import (
 	"testing"
 
-	"github.com/MirrexOne/sqlvet/pkg/config"
+	"github.com/MirrexOne/gounqvet/pkg/config"
 )
 
 func TestNormalizeSQLQuery(t *testing.T) {
@@ -70,7 +70,7 @@ func TestNormalizeSQLQuery(t *testing.T) {
 }
 
 func TestIsSelectStarQuery(t *testing.T) {
-	cfg := &config.SQLVetSettings{
+	cfg := &config.GounqvetSettings{
 		AllowedPatterns: []string{},
 	}
 

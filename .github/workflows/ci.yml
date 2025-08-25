@@ -84,10 +84,10 @@ jobs:
         go-version: '1.23'
 
     - name: Build binary
-      run: go build -v ./cmd/sqlvet
+      run: go build -v ./cmd/gounqvet
 
     - name: Test install
-      run: go install ./cmd/sqlvet
+      run: go install ./cmd/gounqvet
 
   compatibility:
     name: Compatibility Test
@@ -105,4 +105,4 @@ jobs:
     - name: Test with analysis framework
       run: |
         go test -v ./internal/analyzer/...
-        go run ./cmd/sqlvet ./...
+        go run ./cmd/gounqvet ./...
