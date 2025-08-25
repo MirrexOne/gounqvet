@@ -24,16 +24,16 @@ func ignoredPackages() {
 // allowedPatterns - patterns that should be allowed
 func allowedPatterns() {
 	// These should NOT trigger warnings due to allowed patterns
-	tempQuery := "SELECT * FROM temp_table_123"     // Should be allowed if pattern matches
-	backupQuery := "SELECT * FROM users_backup"     // Should be allowed if pattern matches
-	systemQuery := "SELECT * FROM sys.databases"    // Should be allowed if pattern matches
-	
+	tempQuery := "SELECT * FROM temp_table_123"  // Should be allowed if pattern matches
+	backupQuery := "SELECT * FROM users_backup"  // Should be allowed if pattern matches
+	systemQuery := "SELECT * FROM sys.databases" // Should be allowed if pattern matches
+
 	_ = tempQuery
 	_ = backupQuery
 	_ = systemQuery
 }
 
-// sqlBuilders - SQL builder configuration tests  
+// sqlBuilders - SQL builder configuration tests
 func sqlBuilders() {
 	// Mock SQL builder patterns - should trigger warning if check-sql-builders: true
 	builderQuery := "SELECT * FROM users" // want `SELECT \* usage detected`

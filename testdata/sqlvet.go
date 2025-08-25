@@ -118,7 +118,7 @@ func ignoredPatterns() {
 // Function arguments and variables
 func functionArguments() {
 	executeQuery("SELECT * FROM users") // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
-	
+
 	// Variable assignment
 	var userQuery = "SELECT * FROM users" // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = userQuery
@@ -144,7 +144,7 @@ func sqlBuildersWithVariables() {
 func ignoredFunctions() {
 	// fmt.Printf should be ignored by default
 	fmt.Printf("Query: SELECT * FROM debug_table")
-	
+
 	// Custom debugging function (if configured to ignore)
 	debugQuery("SELECT * FROM temp_data")
 }

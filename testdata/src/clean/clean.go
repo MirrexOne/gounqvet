@@ -1,4 +1,4 @@
-// Package clean contains minimal test cases for sqlvet analyzer  
+// Package clean contains minimal test cases for sqlvet analyzer
 package clean
 
 // Simple test case
