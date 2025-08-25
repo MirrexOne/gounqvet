@@ -120,6 +120,7 @@ func run(pass *analysis.Pass) (any, error) {
 			}
 		case *ast.BasicLit:
 			// Check string literals for SELECT * usage
+			// Only check if not within a function call (to avoid duplicates)
 			checkBasicLit(pass, node, cfg)
 		case *ast.CallExpr:
 			// Analyze function calls for SQL with SELECT * usage
@@ -170,6 +171,12 @@ func checkBasicLit(pass *analysis.Pass, lit *ast.BasicLit, cfg *config.SQLVetSet
 		return
 	}
 
+	// Check if this literal is part of a function call to avoid duplicates
+	// We'll check it in checkCallExpr instead
+	if isLiteralInFunctionCall(pass, lit) {
+		return
+	}
+
 	// Normalize SQL query using advanced logic
 	content := normalizeSQLQuery(lit.Value)
 	if isSelectStarQuery(content, cfg) {
@@ -178,6 +185,29 @@ func checkBasicLit(pass *analysis.Pass, lit *ast.BasicLit, cfg *config.SQLVetSet
 			Message: getWarningMessage(),
 		})
 	}
+}
+
+// isLiteralInFunctionCall checks if a BasicLit is an argument to a function call
+func isLiteralInFunctionCall(pass *analysis.Pass, lit *ast.BasicLit) bool {
+	// We need to check the parent nodes
+	for _, file := range pass.Files {
+		var inCall bool
+		ast.Inspect(file, func(n ast.Node) bool {
+			if call, ok := n.(*ast.CallExpr); ok {
+				for _, arg := range call.Args {
+					if arg == lit {
+						inCall = true
+						return false
+					}
+				}
+			}
+			return true
+		})
+		if inCall {
+			return true
+		}
+	}
+	return false
 }
 
 // checkCallExpr analyzes function calls for SQL with SELECT * usage

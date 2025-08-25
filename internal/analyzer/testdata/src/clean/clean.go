@@ -3,7 +3,7 @@ package clean
 
 // Simple test case
 func test() {
-	query := "SELECT * FROM users" // want "SELECT star usage detected"
+	query := "SELECT * FROM users" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 

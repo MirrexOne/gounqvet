@@ -1,8 +1,5 @@
-// Package config provides configuration for the SQLVet analyzer
 package config
 
-// SQLVetSettings represents configuration for the sqlvet linter
-// This structure is designed to be compatible with golangci-lint integration
 type SQLVetSettings struct {
 	// CheckSQLBuilders enables checking SQL builders like Squirrel for SELECT * usage
 	CheckSQLBuilders bool `mapstructure:"check-sql-builders" json:"check-sql-builders" yaml:"check-sql-builders"`

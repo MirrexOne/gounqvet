@@ -9,14 +9,14 @@ import (
 
 // Basic SELECT * detection
 func basicSelectStar() {
-	query := "SELECT * FROM users" // want "SELECT \\* usage detected"
+	query := "SELECT * FROM users" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 
 // SQL with FROM keyword
 func selectStarWithFrom() {
 	db, _ := sql.Open("", "")
-	rows, _ := db.Query("SELECT * FROM orders WHERE status = ?", "active") // want "SELECT \\* usage detected"
+	rows, _ := db.Query("SELECT * FROM orders WHERE status = ?", "active") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = rows
 }
 
@@ -40,15 +40,16 @@ func pgCatalogQuery() {
 
 // Case insensitive detection
 func caseInsensitive() {
-	query := "select * from users where active = 1" // want "SELECT \\* usage detected"
+	query := "select * from users where active = 1" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 
 // Multi-line query
 func multiLineQuery() {
-	query := `SELECT *
+	query := ` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
+		SELECT *
 		FROM users 
-		WHERE active = 1` // want "SELECT \\* usage detected"
+		WHERE active = 1`
 	_ = query
 }
 
@@ -65,7 +66,7 @@ func withNolintComment() {
 
 // Complex query with JOIN
 func complexQuery() {
-	query := "SELECT * FROM users JOIN orders ON users.id = orders.user_id" // want "SELECT \\* usage detected"
+	query := "SELECT * FROM users JOIN orders ON users.id = orders.user_id" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 
@@ -84,7 +85,7 @@ func sqlBuilderSelectStar() {
 
 // Raw string literals
 func rawStringLiterals() {
-	query := `SELECT * FROM products WHERE active = 1` // want "SELECT \\* usage detected"
+	query := `SELECT * FROM products WHERE active = 1` // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 
