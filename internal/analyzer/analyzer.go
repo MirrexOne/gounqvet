@@ -370,7 +370,7 @@ func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 
 	// Check for SELECT * in query (case-insensitive)
 	upperQuery := strings.ToUpper(query)
-	if strings.Contains(upperQuery, "SELECT *") {
+	if strings.Contains(upperQuery, "SELECT *") { //nolint:sqlvet
 		// Ensure this is actually an SQL query by checking for SQL keywords
 		sqlKeywords := []string{"FROM", "WHERE", "JOIN", "GROUP", "ORDER", "HAVING", "UNION", "LIMIT"}
 		for _, keyword := range sqlKeywords {
