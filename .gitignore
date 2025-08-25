@@ -39,3 +39,4 @@ Thumbs.db
 *.tmp
 *.log
 go.work
+.golangci.local.yml
