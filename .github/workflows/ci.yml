@@ -40,10 +40,17 @@ jobs:
           ${{ runner.os }}-go-build-${{ matrix.go-version }}-
 
     - name: Download dependencies
-      run: go mod download
+      run: |
+        go clean -modcache -cache -testcache
+        go mod download
+        go mod verify
 
     - name: Run tests
-      run: go test -v -race -coverprofile=coverage.out ./...
+      run: |
+        # Сначала компилируем все пакеты для генерации кэша типов
+        go build -v ./...
+        # Затем запускаем тесты
+        go test -v -race -coverprofile=coverage.out ./...
 
     - name: Upload coverage to Codecov
       if: matrix.go-version == '1.24.6'
@@ -104,5 +111,12 @@ jobs:
 
     - name: Test with analysis framework
       run: |
+        # Очищаем кэш и обновляем зависимости
+        go clean -modcache -cache -testcache
+        go mod download
+        go mod verify
+        # Компилируем все пакеты для генерации кэша типов
+        go build -v ./...
+        # Запускаем тесты и анализ
         go test -v ./internal/analyzer/...
         go run ./cmd/gounqvet ./...
