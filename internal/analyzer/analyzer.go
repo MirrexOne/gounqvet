@@ -192,7 +192,7 @@ func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.SQLVetSe
 	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call, cfg) {
 		pass.Report(analysis.Diagnostic{
 			Pos:     call.Pos(),
-			Message: getWarningMessage(),
+			Message: getDetailedWarningMessage("sql_builder"),
 		})
 		return
 	}
@@ -388,9 +388,23 @@ func isSelectStarQuery(query string, cfg *config.SQLVetSettings) bool {
 	return false
 }
 
-// getWarningMessage returns standard warning message
+// getWarningMessage returns informative warning message
 func getWarningMessage() string {
-	return "SELECT star usage detected"
+	return "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
+}
+
+// getDetailedWarningMessage returns context-specific warning message
+func getDetailedWarningMessage(context string) string {
+	switch context {
+	case "sql_builder":
+		return "avoid SELECT * in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues"
+	case "nested":
+		return "avoid SELECT * in subquery - can cause performance issues and unexpected results when schema changes"
+	case "empty_select":
+		return "SQL builder Select() without columns defaults to SELECT * - add specific columns with .Columns() method"
+	default:
+		return "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
+	}
 }
 
 // isSQLBuilderSelectStar checks SQL builder method calls for SELECT * usage
@@ -463,7 +477,7 @@ func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetS
 					if hasStarInColumns(node) {
 						pass.Report(analysis.Diagnostic{
 							Pos:     node.Pos(),
-							Message: getWarningMessage(),
+							Message: getDetailedWarningMessage("sql_builder"),
 						})
 					}
 
@@ -484,7 +498,7 @@ func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetS
 					if sel, ok := node.Fun.(*ast.SelectorExpr); ok && sel.Sel != nil {
 						pass.Report(analysis.Diagnostic{
 							Pos:     node.Pos(),
-							Message: getWarningMessage(),
+							Message: getDetailedWarningMessage("sql_builder"),
 						})
 					}
 				}
@@ -499,7 +513,7 @@ func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetS
 		if !hasColumns[varName] {
 			pass.Report(analysis.Diagnostic{
 				Pos:     call.Pos(),
-				Message: getWarningMessage(),
+				Message: getDetailedWarningMessage("empty_select"),
 			})
 		}
 	}

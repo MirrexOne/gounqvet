@@ -10,8 +10,8 @@ import (
 
 // Basic SELECT * detection in string literals
 func basicSelectStar() {
-	query := "SELECT * FROM users"           // want `SELECT \* usage detected`
-	anotherQuery := "select * from products" // want `SELECT \* usage detected`
+	query := "SELECT * FROM users"           // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
+	anotherQuery := "select * from products" // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = query
 	_ = anotherQuery
 }
@@ -36,11 +36,11 @@ func sqlInFunctionCalls() {
 	db, _ := sql.Open("postgres", "")
 
 	// This should trigger warning
-	rows, _ := db.Query("SELECT * FROM orders") // want `SELECT \* usage detected`
+	rows, _ := db.Query("SELECT * FROM orders") // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = rows
 
 	// This should also trigger warning
-	stmt, _ := db.Prepare("SELECT * FROM customers") // want `SELECT \* usage detected`
+	stmt, _ := db.Prepare("SELECT * FROM customers") // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = stmt
 }
 
@@ -49,7 +49,7 @@ func multilineSQL() {
 	query := `
 		SELECT * 
 		FROM users 
-		WHERE active = true` // want `SELECT \* usage detected`
+		WHERE active = true` // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = query
 
 	// With comments - should still detect
@@ -64,7 +64,7 @@ func multilineSQL() {
 // SQL Builders (Squirrel examples)
 func sqlBuilders() {
 	// Direct SELECT * in SQL builder - should trigger warning
-	query1 := squirrel.Select("*").From("users") // want `SELECT \* usage detected`
+	query1 := squirrel.Select("*").From("users") // want `avoid SELECT \* in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues`
 	_ = query1
 
 	// Empty Select() followed by explicit columns - should be OK
@@ -72,7 +72,7 @@ func sqlBuilders() {
 	_ = query2
 
 	// Chained Select().Columns("*") - should trigger warning
-	query3 := squirrel.Select().Columns("*").From("users") // want `SELECT \* usage detected`
+	query3 := squirrel.Select().Columns("*").From("users") // want `avoid SELECT \* in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues`
 	_ = query3
 }
 
@@ -80,11 +80,11 @@ func sqlBuilders() {
 func edgeCases() {
 	// String interpolation with SELECT *
 	table := "users"
-	query := fmt.Sprintf("SELECT * FROM %s", table) // want `SELECT \* usage detected`
+	query := fmt.Sprintf("SELECT * FROM %s", table) // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = query
 
 	// SELECT * in stored procedure calls
-	procCall := "CALL get_user_data('SELECT * FROM users')" // want `SELECT \* usage detected`
+	procCall := "CALL get_user_data('SELECT * FROM users')" // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = procCall
 
 	// Nested queries
@@ -117,10 +117,10 @@ func ignoredPatterns() {
 
 // Function arguments and variables
 func functionArguments() {
-	executeQuery("SELECT * FROM users") // want `SELECT \* usage detected`
+	executeQuery("SELECT * FROM users") // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	
 	// Variable assignment
-	var userQuery = "SELECT * FROM users" // want `SELECT \* usage detected`
+	var userQuery = "SELECT * FROM users" // want `avoid SELECT \* - explicitly specify needed columns for better performance, maintainability and stability`
 	_ = userQuery
 }
 
@@ -132,7 +132,7 @@ func executeQuery(query string) {
 func sqlBuildersWithVariables() {
 	// Variable holding empty Select() - should trigger warning if no columns added
 	query := squirrel.Select() // This will be flagged if no Columns() call follows
-	_ = query                  // want `SELECT \* usage detected`
+	_ = query                  // want `SQL builder Select\(\) without columns defaults to SELECT \* - add specific columns with .Columns\(\) method`
 
 	// Variable with proper columns - should be OK
 	goodQuery := squirrel.Select()

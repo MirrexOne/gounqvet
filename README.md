@@ -23,6 +23,24 @@ SQLVet is a Go static analysis tool (linter) that detects `SELECT *` usage in SQ
 - **Security**: May expose sensitive data that shouldn't be returned
 - **API Stability**: Adding new columns can break clients that depend on column order
 
+## Informative Error Messages
+
+SQLVet provides context-specific messages that explain WHY you should avoid `SELECT *`:
+
+```go
+// Basic queries
+query := "SELECT * FROM users"
+// ❌ avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability
+
+// SQL Builders
+query := squirrel.Select("*").From("users")
+// ❌ avoid SELECT * in SQL builder - explicitly specify columns to prevent unnecessary data transfer and schema change issues
+
+// Empty Select()
+query := squirrel.Select()
+// ❌ SQL builder Select() without columns defaults to SELECT * - add specific columns with .Columns() method
+```
+
 ## Quick Start
 
 ### As a standalone tool
