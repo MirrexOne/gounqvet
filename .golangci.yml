@@ -1,3 +1,5 @@
+version: "2"
+
 run:
   timeout: 5m
   tests: true
@@ -8,18 +10,11 @@ linters:
   enable:
     - govet
     - errcheck
-    - staticcheck
+    - staticcheck  # includes gosimple, stylecheck
     - unused
-    - gosimple
     - ineffassign
-    - typecheck
-    - goimports
-    - gofmt
     - gocyclo
-    - unconvert
     - dupl
-    - goconst
-    - gofumpt
     - revive  # replacement for golint
 
 issues:
@@ -30,18 +25,16 @@ issues:
         - gocyclo
         - errcheck
         - dupl
-        - gosec
     - path: testdata/
       linters:
         - all
+    - path: internal/analyzer/analyzer\.go
+      linters:
+        - gocyclo  # analyzeSQLBuilders is complex by nature
+      text: "cyclomatic complexity"
 
 linters-settings:
-  goimports:
-    local-prefixes: github.com/MirrexOne/sqlvet
   gocyclo:
     min-complexity: 15
   dupl:
     threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2

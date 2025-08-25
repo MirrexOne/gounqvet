@@ -84,7 +84,7 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.SQLVetSettings) (any, error)
 		case *ast.File:
 			// Analyze SQL builders only if enabled in configuration
 			if cfg.CheckSQLBuilders {
-				analyzeSQLBuilders(pass, node, cfg)
+				analyzeSQLBuilders(pass, node)
 			}
 		case *ast.AssignStmt:
 			// Check assignment statements for standalone SQL literals
@@ -129,7 +129,7 @@ func run(pass *analysis.Pass) (any, error) {
 		case *ast.File:
 			// Analyze SQL builders only if enabled in configuration
 			if cfg.CheckSQLBuilders {
-				analyzeSQLBuilders(pass, node, cfg)
+				analyzeSQLBuilders(pass, node)
 			}
 		case *ast.AssignStmt:
 			// Check assignment statements for standalone SQL literals
@@ -450,7 +450,7 @@ func isSQLBuilderSelectStar(call *ast.CallExpr) bool {
 
 // analyzeSQLBuilders performs advanced SQL builder analysis
 // Key logic for handling edge-cases like Select().Columns("*")
-func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File, cfg *config.SQLVetSettings) {
+func analyzeSQLBuilders(pass *analysis.Pass, file *ast.File) {
 	// Track SQL builder variables and their state
 	builderVars := make(map[string]*ast.CallExpr) // Variables with empty Select() calls
 	hasColumns := make(map[string]bool)           // Flag: were columns added for variable
