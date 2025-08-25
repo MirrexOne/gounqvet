@@ -1,6 +1,5 @@
 # Gounqvet
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/MirrexOne/gounqvet)](https://goreportcard.com/report/github.com/MirrexOne/gounqvet)
 [![GoDoc](https://godoc.org/github.com/MirrexOne/gounqvet?status.svg)](https://godoc.org/github.com/MirrexOne/gounqvet)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 

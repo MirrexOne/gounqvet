@@ -1,0 +1,66 @@
+# Example .golangci.yml with gounqvet configuration
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  disable-all: true
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - gofmt
+    - goimports
+    - gounqvet  # Enable gounqvet linter
+
+linters-settings:
+  gounqvet:
+    # Enable SQL builder checking (Squirrel, GORM, etc.)
+    check-sql-builders: true
+    
+    # Optional: Functions to ignore during analysis
+    ignored-functions:
+      - "fmt.Printf"
+      - "log.Printf"
+      - "debug.Query"
+    
+    # Optional: Packages to ignore completely
+    ignored-packages:
+      - "testing"
+      - "debug"
+    
+    # Optional: Allowed patterns for SELECT * queries
+    allowed-patterns:
+      - "SELECT \\* FROM information_schema\\..*"
+      - "SELECT \\* FROM pg_catalog\\..*"
+      - "SELECT \\* FROM temp_.*"
+      - "SELECT COUNT\\(\\*\\) FROM .*"
+    
+    # Optional: File patterns to ignore
+    ignored-file-patterns:
+      - "*_test.go"
+      - "*.pb.go"
+      - "*_gen.go"
+    
+    # Optional: Directories to ignore
+    ignored-directories:
+      - "testdata"
+      - "vendor"
+      - "migrations"
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  
+  # Optional: Exclude specific issues by text
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gounqvet
+    - path: \.pb\.go
+      linters:
+        - gounqvet
