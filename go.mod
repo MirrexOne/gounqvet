@@ -1,8 +1,6 @@
 module github.com/MirrexOne/sqlvet
 
-go 1.23.0
-
-toolchain go1.24.4
+go 1.22
 
 require golang.org/x/tools v0.36.0
 
