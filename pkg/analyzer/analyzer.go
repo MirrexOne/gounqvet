@@ -1,4 +1,3 @@
-// Package analyzer provides the Gounqvet analyzer for detecting SELECT * usage
 package analyzer
 
 import (
