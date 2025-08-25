@@ -8,12 +8,12 @@ linters:
   enable:
     - govet
     - errcheck
-    - staticcheck  # includes gosimple, stylecheck
+    - staticcheck
     - unused
     - ineffassign
     - gocyclo
     - dupl
-    - revive  # replacement for golint
+    - revive
 
 issues:
   exclude-use-default: false
@@ -28,7 +28,7 @@ issues:
         - all
     - path: internal/analyzer/analyzer\.go
       linters:
-        - gocyclo  # analyzeSQLBuilders is complex by nature
+        - gocyclo
       text: "cyclomatic complexity"
 
 linters-settings:

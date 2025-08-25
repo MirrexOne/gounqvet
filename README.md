@@ -184,13 +184,6 @@ jobs:
         args: --enable sqlvet
 ```
 
-### Pre-commit Hook
-
-```bash
-#!/bin/sh
-golangci-lint run --enable sqlvet --new-from-rev=HEAD~1
-```
-
 ## Command Line Options
 
 When used as a standalone tool:
@@ -248,10 +241,6 @@ query := builder.Select()    // Empty select
 // If no .Columns() call follows, triggers warning
 ```
 
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
 ### Running Tests
 
 ```bash
@@ -269,25 +258,13 @@ go mod tidy
 go test ./...
 ```
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for release notes and version history.
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## Related Projects
-
-- [golangci-lint](https://github.com/golangci/golangci-lint) - Fast linters runner for Go
-- [go-critic](https://github.com/go-critic/go-critic) - The most opinionated Go source code linter
-- [staticcheck](https://staticcheck.io/) - Advanced Go linter
-
 ## Support
 
 - **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/sqlvet/issues)
-- **Feature Requests**: [GitHub Discussions](https://github.com/MirrexOne/sqlvet/discussions)
-- **Documentation**: [GoDoc](https://godoc.org/github.com/MirrexOne/sqlvet)
 
 ---
 
