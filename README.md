@@ -1,4 +1,4 @@
-# Gounqvet
+# Gounqvet (go-unquery-vet)
 
 [![GoDoc](https://godoc.org/github.com/MirrexOne/gounqvet?status.svg)](https://godoc.org/github.com/MirrexOne/gounqvet)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
