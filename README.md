@@ -266,5 +266,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/gounqvet/issues)
 
 ---
-
-**Gounqvet** - Making your SQL queries explicit, one `SELECT` at a time!
