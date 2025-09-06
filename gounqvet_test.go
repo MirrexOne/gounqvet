@@ -17,12 +17,8 @@ func TestGounqvet(t *testing.T) {
 func TestGounqvetWithCustomSettings(t *testing.T) {
 	// Test with custom configuration
 	settings := gounqvet.Settings{
-		CheckSQLBuilders:    true,
-		IgnoredFunctions:    []string{"fmt.Printf", "customDebugFunc"},
-		IgnoredPackages:     []string{"test"},
-		AllowedPatterns:     []string{`SELECT \* FROM temp_.*`},
-		IgnoredFilePatterns: []string{"*_test.go"},
-		IgnoredDirectories:  []string{"testdata", "vendor"},
+		CheckSQLBuilders: true,
+		AllowedPatterns:  []string{`SELECT \* FROM temp_.*`},
 	}
 
 	// Create analyzer with custom settings
@@ -39,10 +35,6 @@ func TestDefaultSettings(t *testing.T) {
 		t.Error("CheckSQLBuilders should be enabled by default")
 	}
 
-	// Default config should be minimal - no ignored functions by default
-	if len(defaults.IgnoredFunctions) != 0 {
-		t.Error("Default config should have no ignored functions (minimal config)")
-	}
 
 	// But should have some allowed patterns for reasonable behavior
 	if len(defaults.AllowedPatterns) == 0 {
@@ -99,11 +91,6 @@ func TestSelectStarDetection(t *testing.T) {
 			name:     "case insensitive",
 			code:     `package test; func f() { _ = "select * from users" }`,
 			wantDiag: true,
-		},
-		{
-			name:     "with nolint",
-			code:     `package test; func f() { _ = "SELECT * FROM users" //nolint:gounqvet }`,
-			wantDiag: false,
 		},
 	}
 

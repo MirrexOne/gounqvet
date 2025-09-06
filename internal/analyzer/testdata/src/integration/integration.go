@@ -55,9 +55,9 @@ func ignoredFunction() {
 	fmt.Printf("SELECT * FROM debug_table") // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 }
 
-// With nolint comment
-func withNolintComment() {
-	query := "SELECT * FROM users" //nolint:gounqvet
+// Nolint support removed - now triggers diagnostic
+func removedNolintComment() {
+	query := "SELECT * FROM users" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 }
 

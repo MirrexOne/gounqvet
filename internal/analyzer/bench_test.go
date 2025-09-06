@@ -70,7 +70,8 @@ func BenchmarkIsFileInDirectory(b *testing.B) {
 	for _, tc := range testCases {
 		b.Run("path_check", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_ = isFileInDirectory(tc.path, tc.dir)
+				// Skip directory checking - ignore functionality removed
+				_ = tc.path // Use path to avoid unused variable
 			}
 		})
 	}
@@ -86,10 +87,6 @@ func BenchmarkFullAnalysisWorkflow(b *testing.B) {
 			`SELECT \* FROM information_schema\..*`,
 			`(?i)COUNT\(\s*\*\s*\)`,
 		},
-		IgnoredFunctions:    []string{"fmt.Printf", "log.Printf"},
-		IgnoredPackages:     []string{"testing"},
-		IgnoredFilePatterns: []string{"*_test.go"},
-		IgnoredDirectories:  []string{"vendor", "testdata"},
 	}
 
 	queries := []string{

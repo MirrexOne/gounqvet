@@ -61,13 +61,13 @@ func defaultBehavior() {
 	_, _ = os.Open("file.sql")
 }
 
-// Nolint directives
-func nolintDirectives() {
-	// This should be ignored due to nolint comment
-	query := "SELECT * FROM temp_table" //nolint:gounqvet
+// Test data for removed nolint functionality  
+func removedNolintDirectives() {
+	// This now triggers - nolint support removed
+	query := "SELECT * FROM temp_table" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = query
 
-	// This should be ignored due to general nolint
-	anotherQuery := "SELECT * FROM backup" //nolint
+	// This also triggers - nolint support removed
+	anotherQuery := "SELECT * FROM backup" // want "avoid SELECT \\* - explicitly specify needed columns for better performance, maintainability and stability"
 	_ = anotherQuery
 }
