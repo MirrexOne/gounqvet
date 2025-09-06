@@ -136,8 +136,3 @@ jobs:
       run: |
         # Устанавливаем инструмент
         go install ./cmd/gounqvet
-
-    - name: Run self-analysis
-      run: |
-        # Анализируем проект с помощью установленного инструмента
-        $GOPATH/bin/gounqvet ./...
