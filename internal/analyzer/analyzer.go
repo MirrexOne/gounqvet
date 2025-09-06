@@ -2,10 +2,8 @@
 package analyzer
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -70,15 +68,7 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.GounqvetSettings) (any, erro
 
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
-		// Check if we should skip this file
-		if shouldSkipFile(pass, n, cfg) {
-			return
-		}
 
-		// Check for nolint comments before analyzing the node
-		if hasNolintComment(pass, n) {
-			return
-		}
 
 		switch node := n.(type) {
 		case *ast.File:
@@ -115,15 +105,7 @@ func run(pass *analysis.Pass) (any, error) {
 
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
-		// Check if we should skip this file
-		if shouldSkipFile(pass, n, cfg) {
-			return
-		}
 
-		// Check for nolint comments before analyzing the node
-		if hasNolintComment(pass, n) {
-			return
-		}
 
 		switch node := n.(type) {
 		case *ast.File:
@@ -143,35 +125,6 @@ func run(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
-// hasNolintComment checks for //nolint:gounqvet comment on the same line as the node
-// This provides standard nolint directive support for golangci-lint
-func hasNolintComment(pass *analysis.Pass, node ast.Node) bool {
-	pos := pass.Fset.Position(node.Pos())
-
-	for _, file := range pass.Files {
-		if pass.Fset.Position(file.Pos()).Filename != pos.Filename {
-			continue
-		}
-
-		// Check all comments in the file
-		for _, commentGroup := range file.Comments {
-			for _, comment := range commentGroup.List {
-				commentPos := pass.Fset.Position(comment.Pos())
-				// Check if comment is on the same line as the node
-				if commentPos.Filename == pos.Filename && commentPos.Line == pos.Line {
-					text := comment.Text
-					// Support various nolint comment variants
-					if strings.Contains(text, "nolint:gounqvet") ||
-						strings.Contains(text, "nolint") {
-						return true
-					}
-				}
-			}
-		}
-	}
-
-	return false
-}
 
 // checkAssignStmt checks assignment statements for standalone SQL literals
 func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.GounqvetSettings) {
@@ -179,10 +132,6 @@ func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.Goun
 	for _, expr := range stmt.Rhs {
 		// Only check direct string literals, not function calls
 		if lit, ok := expr.(*ast.BasicLit); ok && lit.Kind == token.STRING {
-			// Check for nolint comments on the same line as the literal
-			if hasNolintComment(pass, lit) {
-				continue
-			}
 			content := normalizeSQLQuery(lit.Value)
 			if isSelectStarQuery(content, cfg) {
 				pass.Report(analysis.Diagnostic{
@@ -197,10 +146,6 @@ func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.Goun
 // checkCallExpr analyzes function calls for SQL with SELECT * usage
 // Includes checking arguments and SQL builders
 func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.GounqvetSettings) {
-	// Skip ignored functions and packages
-	if isIgnoredFunctionOrPackage(call, cfg) {
-		return
-	}
 
 	// Check SQL builders for SELECT * in arguments
 	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call) {
@@ -225,85 +170,7 @@ func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.Gounqvet
 	}
 }
 
-// isIgnoredFunctionOrPackage checks if function call should be ignored
-// Supports both direct functions and package methods
-func isIgnoredFunctionOrPackage(call *ast.CallExpr, cfg *config.GounqvetSettings) bool {
-	switch fun := call.Fun.(type) {
-	case *ast.Ident:
-		// Direct function call (e.g., myFunc())
-		for _, fn := range cfg.IgnoredFunctions {
-			if fun.Name == fn {
-				return true
-			}
-		}
 
-	case *ast.SelectorExpr:
-		// Package method call (e.g., pkg.Method())
-		if ident, ok := fun.X.(*ast.Ident); ok {
-			// Check ignored packages
-			for _, pkg := range cfg.IgnoredPackages {
-				if ident.Name == pkg {
-					return true
-				}
-			}
-
-			// Check full function name (pkg.Method)
-			fullName := fmt.Sprintf("%s.%s", ident.Name, fun.Sel.Name)
-			for _, fn := range cfg.IgnoredFunctions {
-				if fullName == fn {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
-// shouldSkipFile determines if file should be skipped based on configuration
-func shouldSkipFile(pass *analysis.Pass, node ast.Node, cfg *config.GounqvetSettings) bool {
-	pos := pass.Fset.Position(node.Pos())
-	filename := pos.Filename
-
-	// For analysis tests, don't skip files in testdata directories
-	// This is important for golangci-lint integration testing
-	if strings.Contains(filename, "analysistest") || strings.Contains(filename, "testdata") {
-		return false
-	}
-
-	// Check ignored file patterns
-	for _, pattern := range cfg.IgnoredFilePatterns {
-		// Check both base filename and full path
-		matched, err := filepath.Match(pattern, filepath.Base(filename))
-		if err == nil && matched {
-			return true
-		}
-
-		matched, err = filepath.Match(pattern, filename)
-		if err == nil && matched {
-			return true
-		}
-	}
-
-	// Check ignored directories
-	for _, dir := range cfg.IgnoredDirectories {
-		if isFileInDirectory(filename, dir) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// isFileInDirectory checks if file is in the specified directory
-func isFileInDirectory(path, dir string) bool {
-	segments := strings.Split(path, "/")
-	for i, segment := range segments {
-		if strings.EqualFold(segment, dir) && i < len(segments)-1 {
-			return true
-		}
-	}
-	return false
-}
 
 // NormalizeSQLQuery normalizes SQL query for analysis with advanced escape sequence handling.
 // Exported for testing purposes.

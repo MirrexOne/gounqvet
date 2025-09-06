@@ -141,32 +141,14 @@ func TestConfigLoading(t *testing.T) {
 	defaults := config.DefaultSettings()
 	cfg := &defaults
 
-	expectedDirs := []string{"vendor", ".git", "node_modules", "testdata"}
-	for _, expectedDir := range expectedDirs {
-		found := false
-		for _, dir := range cfg.IgnoredDirectories {
-			if dir == expectedDir {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected %s to be in default ignored directories", expectedDir)
-		}
+	// Test that SQL builders are checked by default
+	if !cfg.CheckSQLBuilders {
+		t.Error("CheckSQLBuilders should be enabled by default")
 	}
 
-	expectedPatterns := []string{"*_test.go", "*.pb.go", "*_gen.go", "*.gen.go", "*_generated.go"}
-	for _, expectedPattern := range expectedPatterns {
-		found := false
-		for _, pattern := range cfg.IgnoredFilePatterns {
-			if pattern == expectedPattern {
-				found = true
-				break
-			}
-		}
-		if !found {
-			t.Errorf("Expected %s to be in default ignored file patterns", expectedPattern)
-		}
+	// Test that default allowed patterns include COUNT(*) and system tables
+	if len(cfg.AllowedPatterns) == 0 {
+		t.Error("Should have some default allowed patterns")
 	}
 }
 
@@ -234,52 +216,3 @@ func TestAllowedPatternsWithRegex(t *testing.T) {
 	}
 }
 
-func TestIsFileInDirectory(t *testing.T) {
-	tests := []struct {
-		name      string
-		filepath  string
-		directory string
-		expected  bool
-	}{
-		{
-			name:      "file in vendor directory",
-			filepath:  "/project/vendor/github.com/pkg/module.go",
-			directory: "vendor",
-			expected:  true,
-		},
-		{
-			name:      "file in nested vendor",
-			filepath:  "/project/subproject/vendor/module.go",
-			directory: "vendor",
-			expected:  true,
-		},
-		{
-			name:      "file not in vendor",
-			filepath:  "/project/src/main.go",
-			directory: "vendor",
-			expected:  false,
-		},
-		{
-			name:      "file in git directory",
-			filepath:  "/project/.git/config",
-			directory: ".git",
-			expected:  true,
-		},
-		{
-			name:      "vendor in filename but not directory",
-			filepath:  "/project/src/vendor_utils.go",
-			directory: "vendor",
-			expected:  false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := isFileInDirectory(tt.filepath, tt.directory)
-			if result != tt.expected {
-				t.Errorf("isFileInDirectory(%q, %q) = %v, want %v",
-					tt.filepath, tt.directory, result, tt.expected)
-			}
-		})
-	}
-}
