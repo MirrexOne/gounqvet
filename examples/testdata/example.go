@@ -4,26 +4,26 @@ import (
 	"database/sql"
 )
 
-// This file demonstrates Gounqvet warnings and how to fix them
+// This file demonstrates Unqueryvet warnings and how to fix them
 // NOTE: These are examples only - they don't actually execute
 
-// ExampleBadCode shows patterns that Gounqvet will warn about
+// ExampleBadCode shows patterns that Unqueryvet will warn about
 func ExampleBadCode() {
 	var db *sql.DB
 
 	// BAD: Direct SELECT * in string literal
-	// gounqvet will warn about this
+	// unqueryvet will warn about this
 	query1 := "SELECT * FROM users WHERE active = true"
 	_ = query1
 	_ = db // db would be used in real code
 
 	// BAD: SELECT * in function call
-	// gounqvet will warn about this
+	// unqueryvet will warn about this
 	// In real code: rows, err := db.Query("SELECT * FROM products")
 	_ = "SELECT * FROM products"
 
 	// BAD: Multiline SELECT *
-	// gounqvet will warn about this
+	// unqueryvet will warn about this
 	multilineQuery := `
 		SELECT *
 		FROM orders
@@ -32,7 +32,7 @@ func ExampleBadCode() {
 	_ = multilineQuery
 }
 
-// ExampleGoodCode shows patterns that Gounqvet approves
+// ExampleGoodCode shows patterns that Unqueryvet approves
 func ExampleGoodCode() {
 	var db *sql.DB
 	_ = db // db would be used in real code
@@ -62,18 +62,18 @@ func ExampleGoodCode() {
 	_ = schemaQuery
 }
 
-// ExampleSuppression shows how to suppress Gounqvet warnings
+// ExampleSuppression shows how to suppress Unqueryvet warnings
 func ExampleSuppression() {
 	var db *sql.DB
 	_ = db // db would be used in real code
 
 	// Using nolint directive to suppress warning
-	debugQuery := "SELECT * FROM debug_logs" //nolint:gounqvet
+	debugQuery := "SELECT * FROM debug_logs" //nolint:unqueryvet
 	_ = debugQuery
 
 	// Alternative: use for temporary debugging
 	// Remove before committing
-	tempQuery := "SELECT * FROM temp_table" //nolint:gounqvet // temporary for debugging
+	tempQuery := "SELECT * FROM temp_table" //nolint:unqueryvet // temporary for debugging
 	_ = tempQuery
 }
 

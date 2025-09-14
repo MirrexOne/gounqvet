@@ -1,4 +1,4 @@
-# Example .golangci.yml with gounqvet configuration
+# Example .golangci.yml with unqueryvet configuration
 run:
   timeout: 5m
   modules-download-mode: readonly
@@ -14,10 +14,10 @@ linters:
     - ineffassign
     - gofmt
     - goimports
-    - gounqvet  # Enable gounqvet linter
+    - unqueryvet  # Enable unqueryvet linter
 
 linters-settings:
-  gounqvet:
+  unqueryvet:
     # Enable SQL builder checking (Squirrel, GORM, etc.)
     check-sql-builders: true
     
@@ -60,7 +60,7 @@ issues:
   exclude-rules:
     - path: _test\.go
       linters:
-        - gounqvet
+        - unqueryvet
     - path: \.pb\.go
       linters:
-        - gounqvet
+        - unqueryvet

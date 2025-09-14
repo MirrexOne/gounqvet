@@ -1,4 +1,4 @@
-// Package clean contains minimal test cases for gounqvet analyzer
+// Package clean contains minimal test cases for unqueryvet analyzer
 package clean
 
 // Simple test case

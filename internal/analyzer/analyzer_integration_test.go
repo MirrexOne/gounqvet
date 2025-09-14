@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/tools/go/analysis/analysistest"
 
-	"github.com/MirrexOne/gounqvet/internal/analyzer"
+	"github.com/MirrexOne/unqueryvet/internal/analyzer"
 )
 
 func TestAnalyzer(t *testing.T) {

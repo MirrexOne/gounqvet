@@ -1,7 +1,7 @@
 # unqueryvet
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/MirrexOne/gounqvet)](https://goreportcard.com/report/github.com/MirrexOne/gounqvet)
-[![GoDoc](https://godoc.org/github.com/MirrexOne/gounqvet?status.svg)](https://godoc.org/github.com/MirrexOne/gounqvet)
+[![Go Report Card](https://goreportcard.com/badge/github.com/MirrexOne/unqueryvet)](https://goreportcard.com/report/github.com/MirrexOne/unqueryvet)
+[![GoDoc](https://godoc.org/github.com/MirrexOne/unqueryvet?status.svg)](https://godoc.org/github.com/MirrexOne/unqueryvet)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 unqueryvet is a Go static analysis tool (linter) that detects `SELECT *` usage in SQL queries and SQL builders, encouraging explicit column selection for better performance, maintainability, and API stability.
@@ -11,7 +11,7 @@ unqueryvet is a Go static analysis tool (linter) that detects `SELECT *` usage i
 - **Detects `SELECT *` in string literals** - Finds problematic queries in your Go code
 - **SQL Builder support** - Works with popular SQL builders like Squirrel, GORM, etc.
 - **Highly configurable** - Extensive configuration options for different use cases
-- **Supports `//nolint:gounqvet`** - Standard Go linting suppression
+- **Supports `//nolint:unqueryvet`** - Standard Go linting suppression
 - **golangci-lint integration** - Works seamlessly with golangci-lint
 - **Zero false positives** - Smart pattern recognition for acceptable `SELECT *` usage
 - **Fast and lightweight** - Built on golang.org/x/tools/go/analysis
@@ -25,7 +25,7 @@ unqueryvet is a Go static analysis tool (linter) that detects `SELECT *` usage i
 
 ## Informative Error Messages
 
-Gounqvet provides context-specific messages that explain WHY you should avoid `SELECT *`:
+Unqueryvet provides context-specific messages that explain WHY you should avoid `SELECT *`:
 
 ```go
 // Basic queries
@@ -46,8 +46,8 @@ query := squirrel.Select()
 ### As a standalone tool
 
 ```bash
-go install github.com/MirrexOne/gounqvet/cmd/gounqvet@latest
-gounqvet ./...
+go install github.com/MirrexOne/unqueryvet/cmd/unqueryvet@latest
+unqueryvet ./...
 ```
 
 ### With golangci-lint (Recommended)
@@ -57,10 +57,10 @@ Add to your `.golangci.yml`:
 ```yaml
 linters:
   enable:
-    - gounqvet
+    - unqueryvet
 
 linters-settings:
-  gounqvet:
+  unqueryvet:
     check-sql-builders: true
     # By default, no functions are ignored - minimal configuration
     # ignored-functions:
@@ -109,16 +109,16 @@ query := builder.Select().Columns("id", "quantity", "location").From("inventory"
 "SELECT MAX(*) FROM scores" 
 
 // With nolint suppression
-query := "SELECT * FROM debug_table" //nolint:gounqvet
+query := "SELECT * FROM debug_table" //nolint:unqueryvet
 ```
 
 ## Configuration
 
-Gounqvet is highly configurable to fit your project's needs:
+Unqueryvet is highly configurable to fit your project's needs:
 
 ```yaml
 linters-settings:
-  gounqvet:
+  unqueryvet:
     # Enable/disable SQL builder checking (default: true)
     check-sql-builders: true
     
@@ -155,7 +155,7 @@ linters-settings:
 
 ## Supported SQL Builders
 
-Gounqvet supports popular SQL builders out of the box:
+Unqueryvet supports popular SQL builders out of the box:
 
 - **Squirrel** - `squirrel.Select("*")`, `Select().Columns("*")`
 - **GORM** - Custom query methods
@@ -181,7 +181,7 @@ jobs:
       uses: golangci/golangci-lint-action@v6
       with:
         version: latest
-        args: --enable gounqvet
+        args: --enable unqueryvet
 ```
 
 ## Command Line Options
@@ -190,21 +190,21 @@ When used as a standalone tool:
 
 ```bash
 # Check all packages
-gounqvet ./...
+unqueryvet ./...
 
 # Check specific packages
-gounqvet ./cmd/... ./internal/...
+unqueryvet ./cmd/... ./internal/...
 
 # With custom config file
-gounqvet -config=.gounqvet.yml ./...
+unqueryvet -config=.unqueryvet.yml ./...
 
 # Verbose output
-gounqvet -v ./...
+unqueryvet -v ./...
 ```
 
 ## Performance
 
-Gounqvet is designed to be fast and lightweight:
+Unqueryvet is designed to be fast and lightweight:
 
 - **Parallel processing** - Analyzes multiple files concurrently
 - **Incremental analysis** - Only analyzes changed files when possible
@@ -229,7 +229,7 @@ allowed-patterns:
 
 ### Integration with Custom SQL Builders
 
-For custom SQL builders, Gounqvet looks for these patterns:
+For custom SQL builders, Unqueryvet looks for these patterns:
 
 ```go
 // Method chaining
@@ -252,8 +252,8 @@ go test -bench=. ./...
 ### Development Setup
 
 ```bash
-git clone https://github.com/MirrexOne/gounqvet.git
-cd gounqvet
+git clone https://github.com/MirrexOne/unqueryvet.git
+cd unqueryvet
 go mod tidy
 go test ./...
 ```
@@ -264,6 +264,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/gounqvet/issues)
+- **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/unqueryvet/issues)
 
 ---

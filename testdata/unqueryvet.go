@@ -1,4 +1,4 @@
-// Package testdata contains test cases for gounqvet analyzer
+// Package testdata contains test cases for unqueryvet analyzer
 package testdata
 
 import (
@@ -102,11 +102,11 @@ func edgeCases() {
 // Ignored patterns with nolint
 func ignoredPatterns() {
 	// This should be ignored due to nolint comment
-	query1 := "SELECT * FROM users" //nolint:gounqvet
+	query1 := "SELECT * FROM users" //nolint:unqueryvet
 	_ = query1
 
 	// This should also be ignored
-	//nolint:gounqvet
+	//nolint:unqueryvet
 	query2 := "SELECT * FROM products"
 	_ = query2
 

@@ -67,7 +67,7 @@ func defaultBehavior() {
 // Nolint directives
 func nolintDirectives() {
 	// This should be ignored due to nolint comment
-	query := "SELECT * FROM temp_table" //nolint:gounqvet
+	query := "SELECT * FROM temp_table" //nolint:unqueryvet
 	_ = query
 
 	// This should be ignored due to general nolint

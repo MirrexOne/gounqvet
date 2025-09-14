@@ -10,8 +10,8 @@ test:
 
 # Build the binary
 build:
-	@echo "Building gounqvet..."
-	@go build -v ./cmd/gounqvet
+	@echo "Building unqueryvet..."
+	@go build -v ./cmd/unqueryvet
 
 # Format code with gofmt -s
 fmt:
@@ -43,20 +43,20 @@ lint:
 # Clean build artifacts
 clean:
 	@echo "Cleaning..."
-	@rm -f gounqvet
+	@rm -f unqueryvet
 	@rm -f coverage.out
 	@rm -f .golangci.local.yml
 	@go clean
 
 # Install the binary
 install:
-	@echo "Installing gounqvet..."
-	@go install ./cmd/gounqvet
+	@echo "Installing unqueryvet..."
+	@go install ./cmd/unqueryvet
 
-# Run gounqvet on the project itself
+# Run unqueryvet on the project itself
 check:
-	@echo "Running gounqvet on project..."
-	@go run ./cmd/gounqvet ./...
+	@echo "Running unqueryvet on project..."
+	@go run ./cmd/unqueryvet ./...
 
 # Generate coverage report
 coverage: test
@@ -80,13 +80,13 @@ help:
 	@echo "Available targets:"
 	@echo "  make         - Format, test, and build"
 	@echo "  make test    - Run tests with race detection"
-	@echo "  make build   - Build the gounqvet binary"
+	@echo "  make build   - Build the unqueryvet binary"
 	@echo "  make fmt     - Format all Go files with gofmt -s"
 	@echo "  make fmt-check - Check if files are formatted"
 	@echo "  make lint    - Run golangci-lint"
 	@echo "  make clean   - Remove build artifacts"
-	@echo "  make install - Install gounqvet binary"
-	@echo "  make check   - Run gounqvet on the project"
+	@echo "  make install - Install unqueryvet binary"
+	@echo "  make check   - Run unqueryvet on the project"
 	@echo "  make coverage - Generate coverage report"
 	@echo "  make bench   - Run benchmarks"
 	@echo "  make deps    - Update and verify dependencies"

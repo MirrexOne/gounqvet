@@ -1,12 +1,12 @@
-# Permissive gounqvet configuration - for legacy projects or gradual adoption
+# Permissive unqueryvet configuration - for legacy projects or gradual adoption
 # Use this when migrating large codebases or when SELECT * is acceptable in some contexts
 
 linters:
   enable:
-    - gounqvet
+    - unqueryvet
 
 linters-settings:
-  gounqvet:
+  unqueryvet:
     # Enable SQL builder checking
     check-sql-builders: true
     

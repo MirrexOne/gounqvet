@@ -1,6 +1,6 @@
-# Gounqvet Examples
+# Unqueryvet Examples
 
-This directory contains configuration examples and usage demonstrations for Gounqvet.
+This directory contains configuration examples and usage demonstrations for Unqueryvet.
 
 ## Configuration Files
 
@@ -12,18 +12,18 @@ This directory contains configuration examples and usage demonstrations for Goun
 
 See `testdata/example.go` for code examples demonstrating:
 
-- Patterns that Gounqvet will warn about
+- Patterns that Unqueryvet will warn about
 - Recommended patterns that pass validation
-- How to suppress warnings with `//nolint:gounqvet`
+- How to suppress warnings with `//nolint:unqueryvet`
 - SQL builder usage patterns
 
 ## Running the Examples
 
-To see Gounqvet in action on the example file:
+To see Unqueryvet in action on the example file:
 
 ```bash
 # Run from project root
-go run ./cmd/gounqvet ./examples/testdata/example.go
+go run ./cmd/unqueryvet ./examples/testdata/example.go
 ```
 
 This will show warnings for the problematic patterns in the `ExampleBadCode` function.

@@ -1,4 +1,4 @@
-// Package a contains test cases for gounqvet analyzer
+// Package a contains test cases for unqueryvet analyzer
 package a
 
 import (

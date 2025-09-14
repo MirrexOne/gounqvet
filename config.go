@@ -1,11 +1,11 @@
-package gounqvet
+package unqueryvet
 
-import "github.com/MirrexOne/gounqvet/pkg/config"
+import "github.com/MirrexOne/unqueryvet/pkg/config"
 
-// Settings is a type alias for GounqvetSettings from the config package.
-type Settings = config.GounqvetSettings
+// Settings is a type alias for UnqueryvetSettings from the config package.
+type Settings = config.UnqueryvetSettings
 
-// DefaultSettings returns the default configuration for Gounqvet.
+// DefaultSettings returns the default configuration for Unqueryvet.
 func DefaultSettings() Settings {
 	return config.DefaultSettings()
 }

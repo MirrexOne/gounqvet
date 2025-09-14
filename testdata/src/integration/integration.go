@@ -59,7 +59,7 @@ func ignoredFunction() {
 
 // With nolint comment
 func withNolintComment() {
-	query := "SELECT * FROM users" //nolint:gounqvet
+	query := "SELECT * FROM users" //nolint:unqueryvet
 	_ = query
 }
 

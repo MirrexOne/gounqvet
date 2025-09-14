@@ -1,4 +1,4 @@
-module github.com/MirrexOne/gounqvet
+module github.com/MirrexOne/unqueryvet
 
 go 1.24.0
 

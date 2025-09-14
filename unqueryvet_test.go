@@ -1,4 +1,4 @@
-package gounqvet_test
+package unqueryvet_test
 
 import (
 	"strings"
@@ -6,17 +6,17 @@ import (
 
 	"golang.org/x/tools/go/analysis/analysistest"
 
-	"github.com/MirrexOne/gounqvet"
-	"github.com/MirrexOne/gounqvet/internal/analyzer"
+	"github.com/MirrexOne/unqueryvet"
+	"github.com/MirrexOne/unqueryvet/internal/analyzer"
 )
 
-func TestGounqvet(t *testing.T) {
+func TestUnqueryvet(t *testing.T) {
 	analysistest.Run(t, analysistest.TestData(), analyzer.NewAnalyzer(), "clean")
 }
 
-func TestGounqvetWithCustomSettings(t *testing.T) {
+func TestUnqueryvetWithCustomSettings(t *testing.T) {
 	// Test with custom configuration
-	settings := gounqvet.Settings{
+	settings := unqueryvet.Settings{
 		CheckSQLBuilders: true,
 		AllowedPatterns:  []string{`SELECT \* FROM temp_.*`},
 	}
@@ -28,13 +28,12 @@ func TestGounqvetWithCustomSettings(t *testing.T) {
 
 func TestDefaultSettings(t *testing.T) {
 	// Test that default settings are reasonable
-	defaults := gounqvet.DefaultSettings()
+	defaults := unqueryvet.DefaultSettings()
 
 	// Verify default values
 	if !defaults.CheckSQLBuilders {
 		t.Error("CheckSQLBuilders should be enabled by default")
 	}
-
 
 	// But should have some allowed patterns for reasonable behavior
 	if len(defaults.AllowedPatterns) == 0 {
@@ -57,11 +56,11 @@ func containsCountPattern(patterns []string) bool {
 }
 
 // Benchmark tests
-func BenchmarkGounqvet(b *testing.B) {
+func BenchmarkUnqueryvet(b *testing.B) {
 	testdata := analysistest.TestData()
 
 	for i := 0; i < b.N; i++ {
-		analysistest.Run(b, testdata, gounqvet.Analyzer, "testdata")
+		analysistest.Run(b, testdata, unqueryvet.Analyzer, "testdata")
 	}
 }
 

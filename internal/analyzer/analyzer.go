@@ -12,7 +12,7 @@ import (
 	"golang.org/x/tools/go/analysis/passes/inspect"
 	"golang.org/x/tools/go/ast/inspector"
 
-	"github.com/MirrexOne/gounqvet/pkg/config"
+	"github.com/MirrexOne/unqueryvet/pkg/config"
 )
 
 const (
@@ -26,10 +26,10 @@ const (
 	defaultWarningMessage = "avoid SELECT * - explicitly specify needed columns for better performance, maintainability and stability"
 )
 
-// NewAnalyzer creates the Gounqvet analyzer with enhanced logic for production use
+// NewAnalyzer creates the Unqueryvet analyzer with enhanced logic for production use
 func NewAnalyzer() *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name:     "gounqvet",
+		Name:     "unqueryvet",
 		Doc:      "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
 		Run:      run,
 		Requires: []*analysis.Analyzer{inspect.Analyzer},
@@ -37,9 +37,9 @@ func NewAnalyzer() *analysis.Analyzer {
 }
 
 // NewAnalyzerWithSettings creates analyzer with provided settings for golangci-lint integration
-func NewAnalyzerWithSettings(s config.GounqvetSettings) *analysis.Analyzer {
+func NewAnalyzerWithSettings(s config.UnqueryvetSettings) *analysis.Analyzer {
 	return &analysis.Analyzer{
-		Name: "gounqvet",
+		Name: "unqueryvet",
 		Doc:  "detects SELECT * in SQL queries and SQL builders, preventing performance issues and encouraging explicit column selection",
 		Run: func(pass *analysis.Pass) (any, error) {
 			return RunWithConfig(pass, &s)
@@ -50,7 +50,7 @@ func NewAnalyzerWithSettings(s config.GounqvetSettings) *analysis.Analyzer {
 
 // RunWithConfig performs analysis with provided configuration
 // This is the main entry point for configured analysis
-func RunWithConfig(pass *analysis.Pass, cfg *config.GounqvetSettings) (any, error) {
+func RunWithConfig(pass *analysis.Pass, cfg *config.UnqueryvetSettings) (any, error) {
 	insp := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
 
 	// Use provided configuration or default if nil
@@ -68,7 +68,6 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.GounqvetSettings) (any, erro
 
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
-
 
 		switch node := n.(type) {
 		case *ast.File:
@@ -106,7 +105,6 @@ func run(pass *analysis.Pass) (any, error) {
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
 
-
 		switch node := n.(type) {
 		case *ast.File:
 			// Analyze SQL builders only if enabled in configuration
@@ -125,9 +123,8 @@ func run(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
-
 // checkAssignStmt checks assignment statements for standalone SQL literals
-func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.GounqvetSettings) {
+func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.UnqueryvetSettings) {
 	// Check right-hand side expressions for string literals with SELECT *
 	for _, expr := range stmt.Rhs {
 		// Only check direct string literals, not function calls
@@ -145,7 +142,7 @@ func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.Goun
 
 // checkCallExpr analyzes function calls for SQL with SELECT * usage
 // Includes checking arguments and SQL builders
-func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.GounqvetSettings) {
+func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.UnqueryvetSettings) {
 
 	// Check SQL builders for SELECT * in arguments
 	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call) {
@@ -169,8 +166,6 @@ func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.Gounqvet
 		}
 	}
 }
-
-
 
 // NormalizeSQLQuery normalizes SQL query for analysis with advanced escape sequence handling.
 // Exported for testing purposes.
@@ -234,11 +229,11 @@ func trimQuotes(query string) string {
 
 // IsSelectStarQuery determines if query contains SELECT * with enhanced allowed patterns support.
 // Exported for testing purposes.
-func IsSelectStarQuery(query string, cfg *config.GounqvetSettings) bool {
+func IsSelectStarQuery(query string, cfg *config.UnqueryvetSettings) bool {
 	return isSelectStarQuery(query, cfg)
 }
 
-func isSelectStarQuery(query string, cfg *config.GounqvetSettings) bool {
+func isSelectStarQuery(query string, cfg *config.UnqueryvetSettings) bool {
 	// Check allowed patterns first - if query matches an allowed pattern, ignore it
 	for _, pattern := range cfg.AllowedPatterns {
 		if matched, _ := regexp.MatchString(pattern, query); matched {
@@ -248,7 +243,7 @@ func isSelectStarQuery(query string, cfg *config.GounqvetSettings) bool {
 
 	// Check for SELECT * in query (case-insensitive)
 	upperQuery := strings.ToUpper(query)
-	if strings.Contains(upperQuery, "SELECT *") { //nolint:gounqvet
+	if strings.Contains(upperQuery, "SELECT *") { //nolint:unqueryvet
 		// Ensure this is actually an SQL query by checking for SQL keywords
 		sqlKeywords := []string{"FROM", "WHERE", "JOIN", "GROUP", "ORDER", "HAVING", "UNION", "LIMIT"}
 		for _, keyword := range sqlKeywords {

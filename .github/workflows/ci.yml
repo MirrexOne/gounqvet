@@ -91,10 +91,10 @@ jobs:
         go-version: '1.24'
 
     - name: Build binary
-      run: go build -v ./cmd/gounqvet
+      run: go build -v ./cmd/unqueryvet
 
     - name: Test install
-      run: go install ./cmd/gounqvet
+      run: go install ./cmd/unqueryvet
 
   compatibility:
     name: Compatibility Test
@@ -132,7 +132,7 @@ jobs:
         # Запускаем тесты анализатора
         go test -v ./internal/analyzer/...
 
-    - name: Build and install gounqvet
+    - name: Build and install unqueryvet
       run: |
         # Устанавливаем инструмент
-        go install ./cmd/gounqvet
+        go install ./cmd/unqueryvet

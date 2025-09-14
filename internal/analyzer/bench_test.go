@@ -3,7 +3,7 @@ package analyzer
 import (
 	"testing"
 
-	"github.com/MirrexOne/gounqvet/pkg/config"
+	"github.com/MirrexOne/unqueryvet/pkg/config"
 )
 
 // BenchmarkNormalizeSQLQuery tests the performance of SQL query normalization
@@ -27,7 +27,7 @@ func BenchmarkNormalizeSQLQuery(b *testing.B) {
 
 // BenchmarkIsSelectStarQuery tests the performance of SELECT * detection
 func BenchmarkIsSelectStarQuery(b *testing.B) {
-	cfg := &config.GounqvetSettings{
+	cfg := &config.UnqueryvetSettings{
 		AllowedPatterns: []string{
 			`SELECT \* FROM information_schema\..*`,
 			`SELECT \* FROM pg_catalog\..*`,
@@ -81,7 +81,7 @@ func BenchmarkIsFileInDirectory(b *testing.B) {
 func BenchmarkFullAnalysisWorkflow(b *testing.B) {
 	// This would benchmark the complete analysis workflow
 	// For now, we'll benchmark the key components
-	cfg := &config.GounqvetSettings{
+	cfg := &config.UnqueryvetSettings{
 		CheckSQLBuilders: true,
 		AllowedPatterns: []string{
 			`SELECT \* FROM information_schema\..*`,
@@ -107,7 +107,7 @@ func BenchmarkFullAnalysisWorkflow(b *testing.B) {
 
 // BenchmarkRegexPatterns tests the performance of regex pattern matching
 func BenchmarkRegexPatterns(b *testing.B) {
-	cfg := &config.GounqvetSettings{
+	cfg := &config.UnqueryvetSettings{
 		AllowedPatterns: []string{
 			`SELECT \* FROM information_schema\..*`,
 			`SELECT \* FROM pg_catalog\..*`,

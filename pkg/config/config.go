@@ -1,8 +1,8 @@
-// Package config provides configuration structures for Gounqvet analyzer.
+// Package config provides configuration structures for Unqueryvet analyzer.
 package config
 
-// GounqvetSettings holds the configuration for the Gounqvet analyzer.
-type GounqvetSettings struct {
+// UnqueryvetSettings holds the configuration for the Unqueryvet analyzer.
+type UnqueryvetSettings struct {
 	// CheckSQLBuilders enables checking SQL builders like Squirrel for SELECT * usage
 	CheckSQLBuilders bool `mapstructure:"check-sql-builders" json:"check-sql-builders" yaml:"check-sql-builders"`
 
@@ -11,9 +11,9 @@ type GounqvetSettings struct {
 	AllowedPatterns []string `mapstructure:"allowed-patterns" json:"allowed-patterns" yaml:"allowed-patterns"`
 }
 
-// DefaultSettings returns the default configuration for gounqvet
-func DefaultSettings() GounqvetSettings {
-	return GounqvetSettings{
+// DefaultSettings returns the default configuration for unqueryvet
+func DefaultSettings() UnqueryvetSettings {
+	return UnqueryvetSettings{
 		CheckSQLBuilders: true,
 		AllowedPatterns: []string{
 			`(?i)COUNT\(\s*\*\s*\)`,

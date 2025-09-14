@@ -1,11 +1,11 @@
-# Example .golangci.yml configuration for gounqvet
+# Example .golangci.yml configuration for unqueryvet
 
 linters:
   enable:
-    - gounqvet
+    - unqueryvet
 
 linters-settings:
-  gounqvet:
+  unqueryvet:
     # Basic configuration
     check-sql-builders: true
     
