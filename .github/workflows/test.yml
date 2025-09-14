@@ -1,0 +1,38 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [ oldstable, stable ]
+    
+    steps:
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Download dependencies
+      run: |
+        go mod tidy
+
+    - name: Run tests
+      run: |
+        # Сначала компилируем все пакеты для генерации кэша типов
+        go build -v ./...
+        # Затем запускаем тесты
+        go test -v -race -coverprofile=coverage.out ./...
+
+    - name: Upload coverage to Codecov
+      if: matrix.go-version == 'stable'
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.out

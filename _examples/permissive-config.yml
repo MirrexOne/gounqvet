@@ -1,0 +1,44 @@
+# Permissive unqueryvet configuration - for legacy projects or gradual adoption
+# Use this when migrating large codebases or when SELECT * is acceptable in some contexts
+
+version: "2"
+
+linters:
+  enable:
+    - unqueryvet
+
+  settings:
+    unqueryvet:
+      # Enable SQL builder checking
+      check-sql-builders: true
+
+      # Generous allowed patterns for various use cases
+      allowed-patterns:
+        # System queries
+        - "SELECT \\* FROM information_schema\\..*"
+        - "SELECT \\* FROM pg_catalog\\..*"
+        - "SELECT \\* FROM sys\\..*"
+        - "SELECT \\* FROM mysql\\..*"
+
+        # Temporary and debug tables
+        - "SELECT \\* FROM temp_.*"
+        - "SELECT \\* FROM tmp_.*"
+        - "SELECT \\* FROM debug_.*"
+        - "SELECT \\* FROM test_.*"
+
+        # Backup and archive tables
+        - "SELECT \\* FROM .*_backup"
+        - "SELECT \\* FROM .*_archive"
+        - "SELECT \\* FROM archive_.*"
+
+        # Aggregate functions
+        - "COUNT\\(\\s*\\*\\s*\\)"
+        - "MAX\\(\\s*\\*\\s*\\)"
+        - "MIN\\(\\s*\\*\\s*\\)"
+        - "SUM\\(\\s*\\*\\s*\\)"
+        - "AVG\\(\\s*\\*\\s*\\)"
+
+        # Common admin/maintenance patterns
+        - "SELECT \\* FROM.*LIMIT 1"
+        - "SELECT \\* FROM.*WHERE.*debug"
+        - "SELECT \\* FROM.*-- temp query"

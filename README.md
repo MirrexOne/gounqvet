@@ -55,20 +55,22 @@ unqueryvet ./...
 Add to your `.golangci.yml`:
 
 ```yaml
+version: "2"
+
 linters:
   enable:
     - unqueryvet
 
-linters-settings:
-  unqueryvet:
-    check-sql-builders: true
-    # By default, no functions are ignored - minimal configuration
-    # ignored-functions:
-    #   - "fmt.Printf"
-    #   - "log.Printf"  
-    # allowed-patterns:
-    #   - "SELECT \\* FROM information_schema\\..*" 
-    #   - "SELECT \\* FROM pg_catalog\\..*"
+  settings:
+    unqueryvet:
+      check-sql-builders: true
+      # By default, no functions are ignored - minimal configuration
+      # ignored-functions:
+      #   - "fmt.Printf"
+      #   - "log.Printf"  
+      # allowed-patterns:
+      #   - "SELECT \\* FROM information_schema\\..*" 
+      #   - "SELECT \\* FROM pg_catalog\\..*"
 ```
 
 ## Examples
@@ -117,40 +119,20 @@ query := "SELECT * FROM debug_table" //nolint:unqueryvet
 Unqueryvet is highly configurable to fit your project's needs:
 
 ```yaml
-linters-settings:
-  unqueryvet:
-    # Enable/disable SQL builder checking (default: true)
-    check-sql-builders: true
+version: "2"
+
+linters:
+  settings:
+      unqueryvet:
+        # Enable/disable SQL builder checking (default: true)
+        check-sql-builders: true
     
-    # Optional: Functions to ignore during analysis (empty by default - minimal config)
-    # ignored-functions:
-    #   - "fmt.Printf"
-    #   - "log.Printf"
-    #   - "debug.Query"
-    
-    # Optional: Packages to ignore completely (empty by default)  
-    # ignored-packages:
-    #   - "testing"
-    #   - "debug"
-    
-    # Default allowed patterns (automatically included):
-    # - COUNT(*), MAX(*), MIN(*) functions
-    # - information_schema, pg_catalog, sys schema queries
-    # You can add more patterns if needed:
-    # allowed-patterns:
-    #   - "SELECT \\* FROM temp_.*"
-    
-    # Default ignored file patterns (automatically included):
-    # *_test.go, *.pb.go, *_gen.go, *.gen.go, *_generated.go
-    # You can add more patterns if needed:
-    # ignored-file-patterns:
-    #   - "my_special_pattern.go"
-    
-    # Default ignored directories (automatically included):
-    # vendor, testdata, migrations, generated, .git, node_modules  
-    # You can add more directories if needed:
-    # ignored-directories:
-    #   - "my_special_dir"
+        # Default allowed patterns (automatically included):
+        # - COUNT(*), MAX(*), MIN(*) functions
+        # - information_schema, pg_catalog, sys schema queries
+        # You can add more patterns if needed:
+        # allowed-patterns:
+        #   - "SELECT \\* FROM temp_.*"
 ```
 
 ## Supported SQL Builders
@@ -173,12 +155,10 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
-      with:
-        go-version: 1.23
+    - uses: actions/checkout@v5
+    - uses: actions/setup-go@v6
     - name: golangci-lint
-      uses: golangci/golangci-lint-action@v6
+      uses: golangci/golangci-lint-action@v8
       with:
         version: latest
         args: --enable unqueryvet
@@ -206,10 +186,10 @@ unqueryvet -v ./...
 
 Unqueryvet is designed to be fast and lightweight:
 
-- **Parallel processing** - Analyzes multiple files concurrently
-- **Incremental analysis** - Only analyzes changed files when possible
-- **Minimal memory footprint** - Efficient AST traversal
-- **Smart caching** - Reuses analysis results when appropriate
+- **Parallel processing**: Analyzes multiple files concurrently
+- **Incremental analysis**: Only analyzes changed files when possible
+- **Minimal memory footprint**: Efficient AST traversal
+- **Smart caching**: Reuses analysis results when appropriate
 
 ## Advanced Usage
 
@@ -265,5 +245,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## Support
 
 - **Bug Reports**: [GitHub Issues](https://github.com/MirrexOne/unqueryvet/issues)
-
----

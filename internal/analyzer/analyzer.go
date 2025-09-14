@@ -68,7 +68,6 @@ func RunWithConfig(pass *analysis.Pass, cfg *config.UnqueryvetSettings) (any, er
 
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
-
 		switch node := n.(type) {
 		case *ast.File:
 			// Analyze SQL builders only if enabled in configuration
@@ -104,7 +103,6 @@ func run(pass *analysis.Pass) (any, error) {
 
 	// Walk through all AST nodes and analyze them
 	insp.Preorder(nodeFilter, func(n ast.Node) {
-
 		switch node := n.(type) {
 		case *ast.File:
 			// Analyze SQL builders only if enabled in configuration
@@ -143,7 +141,6 @@ func checkAssignStmt(pass *analysis.Pass, stmt *ast.AssignStmt, cfg *config.Unqu
 // checkCallExpr analyzes function calls for SQL with SELECT * usage
 // Includes checking arguments and SQL builders
 func checkCallExpr(pass *analysis.Pass, call *ast.CallExpr, cfg *config.UnqueryvetSettings) {
-
 	// Check SQL builders for SELECT * in arguments
 	if cfg.CheckSQLBuilders && isSQLBuilderSelectStar(call) {
 		pass.Report(analysis.Diagnostic{
