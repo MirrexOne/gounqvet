@@ -1,0 +1,19 @@
+# Strict unqueryvet configuration - catches almost everything
+# Use this for new projects or when you want to enforce strict SELECT * policies
+
+version: "2"
+
+linters:
+  enable:
+    - unqueryvet
+
+  settings:
+    unqueryvet:
+      # Enable all checks
+      check-sql-builders: true
+
+      # Very restrictive allowed patterns - only critical system queries
+      allowed-patterns:
+        - "SELECT \\* FROM information_schema\\.tables"
+        - "SELECT \\* FROM information_schema\\.columns"
+        - "COUNT\\(\\s*\\*\\s*\\)"  # COUNT(*) is always acceptable

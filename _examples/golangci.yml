@@ -1,0 +1,28 @@
+# Example .golangci.yml configuration for unqueryvet
+
+version: "2"
+
+linters:
+  enable:
+    - unqueryvet
+
+  settings:
+    unqueryvet:
+      # Basic configuration
+      check-sql-builders: true
+
+      # Common patterns that should be allowed
+      allowed-patterns:
+        # System/catalog queries
+        - "SELECT \\* FROM information_schema\\..*"
+        - "SELECT \\* FROM pg_catalog\\..*"
+        - "SELECT \\* FROM sys\\..*"
+
+        # Temporary tables (adjust pattern as needed)
+        - "SELECT \\* FROM temp_.*"
+        - "SELECT \\* FROM tmp_.*"
+
+        # Common aggregate functions that use *
+        - "COUNT\\(\\s*\\*\\s*\\)"
+        - "MAX\\(\\s*\\*\\s*\\)"
+        - "MIN\\(\\s*\\*\\s*\\)"

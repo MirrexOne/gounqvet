@@ -1,0 +1,39 @@
+# Example .golangci.yml with unqueryvet configuration
+
+version: "2"
+
+linters:
+  default: all
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - ineffassign
+    - unqueryvet  # Enable unqueryvet linter
+
+  settings:
+    unqueryvet:
+      # Enable SQL builder checking (Squirrel, GORM, etc.)
+      check-sql-builders: true
+
+      # Optional: Allowed patterns for SELECT * queries
+      allowed-patterns:
+        - "SELECT \\* FROM information_schema\\..*"
+        - "SELECT \\* FROM pg_catalog\\..*"
+        - "SELECT \\* FROM temp_.*"
+        - "SELECT COUNT\\(\\*\\) FROM .*"
+
+    exclusions:
+      # Optional: Exclude specific issues by text
+      rules:
+        - path: _test\.go
+          linters:
+            - unqueryvet
+        - path: \.pb\.go
+          linters:
+            - unqueryvet
+
+  issues:
+    max-issues-per-linter: 0
+    max-same-issues: 0
